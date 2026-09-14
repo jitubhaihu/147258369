@@ -45,7 +45,7 @@ FSUB_PICS = (environ.get('FSUB_PICS', 'https://files.catbox.moe/e52yh3.jpg')).sp
 # ============================
 ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '5685076977').split()] # Replace with the actual admin ID(s) to add
 CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002137768832 -1002694399477 -1003165335484').split()]  # Channel id for auto indexing (make sure bot is admin)
-DAILY_DOWNLOAD_LIMIT = int(environ.get("DAILY_DOWNLOAD_LIMIT", "5"))
+DAILY_DOWNLOAD_LIMIT = int(environ.get("DAILY_DOWNLOAD_LIMIT", "3"))
 
 LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002866064533'))  # Log channel id (make sure bot is admin)
 BIN_CHANNEL = int(environ.get('BIN_CHANNEL', '-100'))  # Bin channel id (make sure bot is admin)
@@ -70,7 +70,6 @@ PLAN_1_DAY_PRICE = environ.get('PLAN_1_DAY_PRICE', '5')
 PLAN_5_DAYS_PRICE = environ.get('PLAN_5_DAYS_PRICE', '12')
 PLAN_15_DAYS_PRICE = environ.get('PLAN_15_DAYS_PRICE', '25')
 PLAN_30_DAYS_PRICE = environ.get('PLAN_30_DAYS_PRICE', '39')
-PLAN_LIFETIME_PRICE = environ.get('PLAN_LIFETIME_PRICE', '129')
 
 PAYMENT_URL = environ.get('PAYMENT_URL', 'https://t.me/Phantom_Devil')
 SUPPORT_USERNAME = environ.get('SUPPORT_USERNAME', 'https://t.me/Phantom_Devil')
@@ -120,15 +119,16 @@ TUTORIAL = environ.get("TUTORIAL", "https://t.me/dreamxbotz")   # Tutorial link 
 TUTORIAL_2 = environ.get("TUTORIAL_2", "https://t.me/dreamxbotz")   # Second tutorial link for verification
 TUTORIAL_3 = environ.get("TUTORIAL_3", "https://t.me/dreamxbotz")   # Third tutorial link for verification
 
-# Verification (Must Fill All Veriables. Else You Got Error
-SHORTENER_API = environ.get("SHORTENER_API", "a7ac9b3012c67d7491414cf272d82593c75f6cbb") # Shortener API key
-SHORTENER_WEBSITE = environ.get("SHORTENER_WEBSITE", "omegalinks.in") # Shortener website
+# GPLinks & Shortener Configuration
+GPLINKS_API_KEY = environ.get("GPLINKS_API_KEY", "")
+SHORTENER_API = environ.get("SHORTENER_API", GPLINKS_API_KEY) # Shortener API key
+SHORTENER_WEBSITE = environ.get("SHORTENER_WEBSITE", "gplinks.com") # Shortener website
 
-SHORTENER_API2 = environ.get("SHORTENER_API2", "a7ac9b3012c67d7491414cf272d82593c75f6cbb")  # Shortener API key for second website
-SHORTENER_WEBSITE2 = environ.get("SHORTENER_WEBSITE2", "omegalinks.in") # Shortener website for second website
+SHORTENER_API2 = environ.get("SHORTENER_API2", SHORTENER_API)  # Shortener API key for second website
+SHORTENER_WEBSITE2 = environ.get("SHORTENER_WEBSITE2", SHORTENER_WEBSITE) # Shortener website for second website
 
-SHORTENER_API3 = environ.get("SHORTENER_API3", "a7ac9b3012c67d7491414cf272d82593c75f6cbb")  
-SHORTENER_WEBSITE3 = environ.get("SHORTENER_WEBSITE3", "omegalinks.in") # Shortener website for third website
+SHORTENER_API3 = environ.get("SHORTENER_API3", SHORTENER_API)  
+SHORTENER_WEBSITE3 = environ.get("SHORTENER_WEBSITE3", SHORTENER_WEBSITE) # Shortener website for third website
 
 TWO_VERIFY_GAP = int(environ.get('TWO_VERIFY_GAP', "1200")) # Time gap for two-step verification in seconds (default: 20 minutes)
 THREE_VERIFY_GAP = int(environ.get('THREE_VERIFY_GAP', "54000"))    
