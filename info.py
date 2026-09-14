@@ -120,17 +120,17 @@ TUTORIAL_2 = environ.get("TUTORIAL_2", "https://t.me/dreamxbotz")   # Second tut
 TUTORIAL_3 = environ.get("TUTORIAL_3", "https://t.me/dreamxbotz")   # Third tutorial link for verification
 
 # GPLinks & Shortener Configuration
-GPLINKS_API_KEY = environ.get("GPLINKS_API_KEY", "").strip()
+GPLINKS_API_KEY = environ.get("GPLINKS_API_KEY", "457d9a6327d60c44d26abb2ec3fb524fe5d8250b").strip()
 if not GPLINKS_API_KEY:
-    GPLINKS_API_KEY = environ.get("SHORTENER_API", "").strip()
+    GPLINKS_API_KEY = environ.get("SHORTENER_API", "457d9a6327d60c44d26abb2ec3fb524fe5d8250b").strip()
 
 SHORTENER_API = GPLINKS_API_KEY
 SHORTENER_WEBSITE = "gplinks.com"
 
-SHORTENER_API2 = environ.get("SHORTENER_API2", "").strip() or GPLINKS_API_KEY
+SHORTENER_API2 = environ.get("SHORTENER_API2", "457d9a6327d60c44d26abb2ec3fb524fe5d8250b").strip() or GPLINKS_API_KEY
 SHORTENER_WEBSITE2 = "gplinks.com"
 
-SHORTENER_API3 = environ.get("SHORTENER_API3", "").strip() or GPLINKS_API_KEY
+SHORTENER_API3 = environ.get("SHORTENER_API3", "457d9a6327d60c44d26abb2ec3fb524fe5d8250b").strip() or GPLINKS_API_KEY
 SHORTENER_WEBSITE3 = "gplinks.com"
 
 TWO_VERIFY_GAP = int(environ.get('TWO_VERIFY_GAP', "1200")) # Time gap for two-step verification in seconds (default: 20 minutes)
