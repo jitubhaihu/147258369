@@ -288,60 +288,73 @@ async def start(client, message):
         is_premium = await db.has_premium_access(user_id)
         downloads = await db.get_daily_downloads(user_id)
 
-        if not is_premium:
-            if downloads >= DAILY_DOWNLOAD_LIMIT:
+        if not is_premium and downloads >= DAILY_DOWNLOAD_LIMIT:
+            user_verified = False
+            try:
+                user_verified = await db.is_user_verified(user_id)
+            except Exception as e:
+                logger.error(f"Error checking user_verified: {e}")
+                user_verified = False
+
+            if not user_verified:
+                gplink_url = f"https://telegram.me/{temp.U_NAME}"
                 try:
-                    grp_id_int = int(grp_id)
-                    user_verified = await db.is_user_verified(user_id)
-                    settings = await get_settings(grp_id_int) if grp_id_int else {}
-                    is_second_shortener = await db.use_second_shortener(user_id, settings.get('verify_time', TWO_VERIFY_GAP)) if settings else False
-                    is_third_shortener = await db.use_third_shortener(user_id, settings.get('third_verify_time', THREE_VERIFY_GAP)) if settings else False
-                    if not user_verified or is_second_shortener or is_third_shortener:
-                        verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
-                        await db.create_verify_id(user_id, verify_id)
-                        temp.VERIFICATIONS[user_id] = grp_id_int
-                        is_allfiles = message.command[1].startswith('allfiles') if len(message.command) > 1 else False
-                        target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{user_id}_{verify_id}_{file_id}" if is_allfiles else f"https://telegram.me/{temp.U_NAME}?start=notcopy_{user_id}_{verify_id}_{file_id}"
-                        gplink_url = await get_gplink(target_link)
-                        buttons = [
-                            [
-                                InlineKeyboardButton(f"⚡ 1 Day ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1"),
-                                InlineKeyboardButton(f"🔥 5 Days ₹{PLAN_5_DAYS_PRICE}", callback_data="plan_5")
-                            ],
-                            [
-                                InlineKeyboardButton(f"💥 15 Days ₹{PLAN_15_DAYS_PRICE}", callback_data="plan_15"),
-                                InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
-                            ],
-                            [
-                                InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
-                            ]
-                        ]
-                        reply_markup = InlineKeyboardMarkup(buttons)
-                        caption = (
-                            "🚫 <b>Daily Download Limit Reached!</b>\n\n"
-                            "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
-                            "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
-                            "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
-                            f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
-                            f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
-                            f"💥 <b>15 Days</b> — ₹{PLAN_15_DAYS_PRICE}\n"
-                            f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}"
-                        )
-                        n = await message.reply_photo(
-                            photo=SUBSCRIPTION,
-                            caption=caption,
-                            reply_markup=reply_markup,
-                            parse_mode=enums.ParseMode.HTML
-                        )
-                        if sticker:
-                            try:
-                                await sticker.delete()
-                            except Exception:
-                                pass
-                        return
+                    grp_id_int = int(grp_id) if grp_id else 0
+                    verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+                    await db.create_verify_id(user_id, verify_id)
+                    temp.VERIFICATIONS[user_id] = grp_id_int
+                    is_allfiles = message.command[1].startswith('allfiles') if len(message.command) > 1 else False
+                    target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{user_id}_{verify_id}_{file_id}" if is_allfiles else f"https://telegram.me/{temp.U_NAME}?start=notcopy_{user_id}_{verify_id}_{file_id}"
+                    gplink_url = await get_gplink(target_link)
                 except Exception as e:
-                    logger.error(f"Error In Verification/Limit check - {e}")
-                    pass
+                    logger.error(f"Error building GPLink URL: {e}")
+
+                buttons = [
+                    [
+                        InlineKeyboardButton(f"⚡ 1 Day ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1"),
+                        InlineKeyboardButton(f"🔥 5 Days ₹{PLAN_5_DAYS_PRICE}", callback_data="plan_5")
+                    ],
+                    [
+                        InlineKeyboardButton(f"💥 15 Days ₹{PLAN_15_DAYS_PRICE}", callback_data="plan_15"),
+                        InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
+                    ],
+                    [
+                        InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                    ]
+                ]
+                reply_markup = InlineKeyboardMarkup(buttons)
+                caption = (
+                    "🚫 <b>Daily Download Limit Reached!</b>\n\n"
+                    "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
+                    "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
+                    "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
+                    f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
+                    f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
+                    f"💥 <b>15 Days</b> — ₹{PLAN_15_DAYS_PRICE}\n"
+                    f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}"
+                )
+
+                try:
+                    await message.reply_photo(
+                        photo=SUBSCRIPTION,
+                        caption=caption,
+                        reply_markup=reply_markup,
+                        parse_mode=enums.ParseMode.HTML
+                    )
+                except Exception as send_err:
+                    logger.warning(f"reply_photo failed ({send_err}), sending text fallback.")
+                    await message.reply_text(
+                        text=caption,
+                        reply_markup=reply_markup,
+                        parse_mode=enums.ParseMode.HTML
+                    )
+
+                if sticker:
+                    try:
+                        await sticker.delete()
+                    except Exception:
+                        pass
+                return
 
         async def check_and_apply_premium_trial(client, message):
             user_id = message.from_user.id
