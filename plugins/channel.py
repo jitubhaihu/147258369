@@ -304,14 +304,27 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
     }
 
     if not movie_doc:
+        details = {}
         if TMDB_POSTER:
-            details = await get_movie_detailsx(base_name)
-            if not details or details.get("error") or (not details.get("poster_url") and not details.get("backdrop_url")):
-                error_tmdb=True
-                logger.info("TMDB error switching to IMDB")
-                details = await get_movie_details(base_name) or {}
+            try:
+                details = await get_movie_detailsx(base_name)
+                if not details or details.get("error") or (not details.get("poster_url") and not details.get("backdrop_url")):
+                    error_tmdb=True
+                    logger.info("TMDB error switching to IMDB")
+                    details = await get_movie_details(base_name) or {}
+            except Exception as e:
+                logger.error(f"Error fetching TMDB details: {e}")
+                try:
+                    details = await get_movie_details(base_name) or {}
+                except Exception as ex:
+                    logger.error(f"Error fetching IMDb details fallback: {ex}")
+                    details = {}
         else:
-            details = await get_movie_details(base_name) or {}
+            try:
+                details = await get_movie_details(base_name) or {}
+            except Exception as e:
+                logger.error(f"Error fetching IMDb details: {e}")
+                details = {}
 
         raw_genres = details.get("genres", "N/A")
         if isinstance(raw_genres, str):
@@ -421,7 +434,11 @@ async def send_movie_update(bot, base_name):
             buttons = build_movie_update_buttons(movie_doc, base_name)
             size=(2560, 1440) if LANDSCAPE_POSTER and TMDB_POSTER and movie_doc.get("is_backdrop") and not movie_doc.get("error_tmdb") else (853, 1280)
             if movie_doc.get("poster_url") and not LINK_PREVIEW:
-                resized_poster = await fetch_image(movie_doc["poster_url"], size)
+                try:
+                    resized_poster = await fetch_image(movie_doc["poster_url"], size)
+                except Exception as e:
+                    logger.error(f"Error fetching poster image: {e}")
+                    resized_poster = None
                 if resized_poster:
                     msg = await bot.send_photo(
                         chat_id=MOVIE_UPDATE_CHANNEL,
