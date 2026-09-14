@@ -18,7 +18,7 @@ from pyrogram.errors import FloodWait, UserNotParticipant , ChannelInvalid, Peer
 from database.ia_filterdb import Media, Media2, get_file_details, unpack_new_file_id, get_bad_files, save_file
 from database.users_chats_db import db
 from info import *
-from utils import get_settings, save_group_settings, is_subscribed, is_req_subscribed, get_size, get_shortlink, is_check_admin, temp, get_readable_time, get_time, generate_settings_text, log_error, clean_filename, get_random_mix_id, is_premium_movie
+from utils import get_settings, save_group_settings, is_subscribed, is_req_subscribed, get_size, get_shortlink, get_gplink, is_check_admin, temp, get_readable_time, get_time, generate_settings_text, log_error, clean_filename, get_random_mix_id, is_premium_movie
 import time
 
 logging.basicConfig(level=logging.ERROR)
@@ -285,49 +285,63 @@ async def start(client, message):
 
 
         user_id = m.from_user.id
-        if not await db.has_premium_access(user_id):
-            try:
-                grp_id = int(grp_id)
-                user_verified = await db.is_user_verified(user_id)
-                settings = await get_settings(grp_id)
-                is_second_shortener = await db.use_second_shortener(user_id, settings.get('verify_time', TWO_VERIFY_GAP)) 
-                is_third_shortener = await db.use_third_shortener(user_id, settings.get('third_verify_time', THREE_VERIFY_GAP))
-                if settings.get("is_verify", IS_VERIFY) and (not user_verified or is_second_shortener or is_third_shortener):
-                    verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
-                    await db.create_verify_id(user_id, verify_id)
-                    temp.VERIFICATIONS[user_id] = grp_id
-                    if message.command[1].startswith('allfiles'):
-                        verify = await get_shortlink(f"https://telegram.me/{temp.U_NAME}?start=sendall_{user_id}_{verify_id}_{file_id}", grp_id, is_second_shortener, is_third_shortener)
-                    else:
-                        verify = await get_shortlink(f"https://telegram.me/{temp.U_NAME}?start=notcopy_{user_id}_{verify_id}_{file_id}", grp_id, is_second_shortener, is_third_shortener)
-                    if is_third_shortener:
-                        howtodownload = settings.get('tutorial_3', TUTORIAL_3)
-                    else:
-                        howtodownload = settings.get('tutorial_2', TUTORIAL_2) if is_second_shortener else settings.get('tutorial', TUTORIAL)
-                    buttons = [[
-                        InlineKeyboardButton(text="🔐 VERIFY NOW", url=verify)
-                    ],[
-                        InlineKeyboardButton(text="⁉️ ʜᴏᴡ ᴛᴏ ᴠᴇRɪꜰY ⁉️", url=howtodownload)
-                    ]]
-                    reply_markup=InlineKeyboardMarkup(buttons)
-                    if await db.user_verified(user_id): 
-                        msg = script.THIRDT_VERIFICATION_TEXT
-                    else:            
-                        msg = script.SECOND_VERIFICATION_TEXT if is_second_shortener else script.VERIFICATION_TEXT
-                    n=await m.reply_text(
-                        text=msg.format(message.from_user.mention),
-                        protect_content = True,
-                        reply_markup=reply_markup,
-                        parse_mode=enums.ParseMode.HTML
-                    )
-                    await sticker.delete()
-                    await asyncio.sleep(300) 
-                    await n.delete()
-                    await m.delete()
-                    return
-            except Exception as e:
-                print(f"Error In Verification - {e}")
-                pass
+        is_premium = await db.has_premium_access(user_id)
+        downloads = await db.get_daily_downloads(user_id)
+
+        if not is_premium:
+            if downloads >= DAILY_DOWNLOAD_LIMIT:
+                try:
+                    grp_id_int = int(grp_id)
+                    user_verified = await db.is_user_verified(user_id)
+                    settings = await get_settings(grp_id_int) if grp_id_int else {}
+                    is_second_shortener = await db.use_second_shortener(user_id, settings.get('verify_time', TWO_VERIFY_GAP)) if settings else False
+                    is_third_shortener = await db.use_third_shortener(user_id, settings.get('third_verify_time', THREE_VERIFY_GAP)) if settings else False
+                    if not user_verified or is_second_shortener or is_third_shortener:
+                        verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+                        await db.create_verify_id(user_id, verify_id)
+                        temp.VERIFICATIONS[user_id] = grp_id_int
+                        is_allfiles = message.command[1].startswith('allfiles') if len(message.command) > 1 else False
+                        target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{user_id}_{verify_id}_{file_id}" if is_allfiles else f"https://telegram.me/{temp.U_NAME}?start=notcopy_{user_id}_{verify_id}_{file_id}"
+                        gplink_url = await get_gplink(target_link)
+                        buttons = [
+                            [
+                                InlineKeyboardButton(f"⚡ 1 Day ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1"),
+                                InlineKeyboardButton(f"🔥 5 Days ₹{PLAN_5_DAYS_PRICE}", callback_data="plan_5")
+                            ],
+                            [
+                                InlineKeyboardButton(f"💥 15 Days ₹{PLAN_15_DAYS_PRICE}", callback_data="plan_15"),
+                                InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
+                            ],
+                            [
+                                InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                            ]
+                        ]
+                        reply_markup = InlineKeyboardMarkup(buttons)
+                        caption = (
+                            "🚫 <b>Daily Download Limit Reached!</b>\n\n"
+                            "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
+                            "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
+                            "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
+                            f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
+                            f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
+                            f"💥 <b>15 Days</b> — ₹{PLAN_15_DAYS_PRICE}\n"
+                            f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}"
+                        )
+                        n = await message.reply_photo(
+                            photo=SUBSCRIPTION,
+                            caption=caption,
+                            reply_markup=reply_markup,
+                            parse_mode=enums.ParseMode.HTML
+                        )
+                        if sticker:
+                            try:
+                                await sticker.delete()
+                            except Exception:
+                                pass
+                        return
+                except Exception as e:
+                    logger.error(f"Error In Verification/Limit check - {e}")
+                    pass
 
         async def check_and_apply_premium_trial(client, message):
             user_id = message.from_user.id
@@ -385,20 +399,6 @@ async def start(client, message):
             if not await check_and_apply_premium_trial(client, message):
                 return
 
-        if not await db.check_daily_limit(message.from_user.id):
-            btn = [
-                [InlineKeyboardButton("💎 ᴜᴘɢʀᴀᴅE ᴛᴏ ᴘʀᴇᴍɪᴜᴍ 💎", callback_data="premium_info")],
-                [InlineKeyboardButton("📲 ᴄᴏɴᴛᴀᴄᴛ ᴏᴡɴᴇʀ 📲", url=OWNER_LNK)]
-            ]
-            return await message.reply_text(
-                "🚫 <b>Daily download limit reached.</b>\n\n"
-                "📦 <b>Free users can download only 3 files every 24 hours.</b>\n\n"
-                "💎 <b>Upgrade to Premium for unlimited downloads.</b>",
-                quote=True,
-                reply_markup=InlineKeyboardMarkup(btn),
-                parse_mode=enums.ParseMode.HTML
-            )
-
         if data.startswith("allfiles"):
             try:
                 files = temp.GETALL.get(file_id)
@@ -410,20 +410,42 @@ async def start(client, message):
                 filesarr = []
                 cover = None
                 for file in files:
-                    if not await db.check_daily_limit(message.from_user.id):
-                        limit_btn = [
-                            [InlineKeyboardButton("💎 ᴜᴘɢʀᴀᴅᴇ ᴛᴏ ᴘʀᴇᴍɪᴜᴍ 💎", callback_data="premium_info")],
-                            [InlineKeyboardButton("📲 ᴄᴏɴᴛᴀᴄᴛ ᴏᴡɴᴇʀ 📲", url=OWNER_LNK)]
-                        ]
-                        await message.reply_text(
-                            "🚫 <b>Daily download limit reached.</b>\n\n"
-                            "📦 <b>Free users can download only 3 files every 24 hours.</b>\n\n"
-                            "💎 <b>Upgrade to Premium for unlimited downloads.</b>",
-                            quote=True,
-                            reply_markup=InlineKeyboardMarkup(limit_btn),
-                            parse_mode=enums.ParseMode.HTML
-                        )
-                        break
+                    if not is_premium and await db.get_daily_downloads(message.from_user.id) >= DAILY_DOWNLOAD_LIMIT:
+                        if not await db.is_user_verified(message.from_user.id):
+                            verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+                            await db.create_verify_id(message.from_user.id, verify_id)
+                            target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{message.from_user.id}_{verify_id}_{file.file_id}"
+                            gplink_url = await get_gplink(target_link)
+                            limit_btn = [
+                                [
+                                    InlineKeyboardButton(f"⚡ 1 Day ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1"),
+                                    InlineKeyboardButton(f"🔥 5 Days ₹{PLAN_5_DAYS_PRICE}", callback_data="plan_5")
+                                ],
+                                [
+                                    InlineKeyboardButton(f"💥 15 Days ₹{PLAN_15_DAYS_PRICE}", callback_data="plan_15"),
+                                    InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
+                                ],
+                                [
+                                    InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                                ]
+                            ]
+                            await message.reply_photo(
+                                photo=SUBSCRIPTION,
+                                caption=(
+                                    "🚫 <b>Daily Download Limit Reached!</b>\n\n"
+                                    "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
+                                    "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
+                                    "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
+                                    f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
+                                    f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
+                                    f"💥 <b>15 Days</b> — ₹{PLAN_15_DAYS_PRICE}\n"
+                                    f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}"
+                                ),
+                                quote=True,
+                                reply_markup=InlineKeyboardMarkup(limit_btn),
+                                parse_mode=enums.ParseMode.HTML
+                            )
+                            break
                     file_id = file.file_id
                     files_ = await get_file_details(file_id)
                     files1 = files_[0]
