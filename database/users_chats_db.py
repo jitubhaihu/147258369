@@ -319,10 +319,16 @@ class Database:
             expiry_time = user_data.get("expiry_time")
             if expiry_time is None:
                 return False
-            elif isinstance(expiry_time, datetime.datetime) and datetime.datetime.now() <= expiry_time:
+            elif isinstance(expiry_time, str) and expiry_time.lower() == "lifetime":
                 return True
-            else:
-                await self.users.update_one({"id": user_id}, {"$set": {"expiry_time": None}})
+            elif isinstance(expiry_time, datetime.datetime):
+                if expiry_time.tzinfo is not None:
+                    expiry_time = expiry_time.replace(tzinfo=None)
+                now = datetime.datetime.utcnow()
+                if now <= expiry_time:
+                    return True
+                else:
+                    await self.users.update_one({"id": user_id}, {"$set": {"expiry_time": None}})
         return False
 
     async def check_daily_limit(self, user_id):
@@ -432,7 +438,11 @@ class Database:
         
     async def all_premium_users(self):
         count = await self.users.count_documents({
-        "expiry_time": {"$gt": datetime.datetime.now()}
+            "$or": [
+                {"expiry_time": "lifetime"},
+                {"expiry_time": "Lifetime"},
+                {"expiry_time": {"$gt": datetime.datetime.now()}}
+            ]
         })
         return count
     
