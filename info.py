@@ -66,11 +66,11 @@ QR_CODE = environ.get('QR_CODE', 'https://i.ibb.co/9HCkrZp3/x.jpg')    # QR code
 OWNER_UPI_ID = environ.get('OWNER_UPI_ID', 'phantombot@ptaxis')    # Owner UPI ID for payments
 
 # Premium Plans Prices & Links
-PLAN_7_DAYS_PRICE = environ.get('PLAN_7_DAYS_PRICE', '20')
-PLAN_15_DAYS_PRICE = environ.get('PLAN_15_DAYS_PRICE', '40')
-PLAN_30_DAYS_PRICE = environ.get('PLAN_30_DAYS_PRICE', '60')
-PLAN_45_DAYS_PRICE = environ.get('PLAN_45_DAYS_PRICE', '90')
-PLAN_60_DAYS_PRICE = environ.get('PLAN_60_DAYS_PRICE', '120')
+PLAN_1_DAY_PRICE = environ.get('PLAN_1_DAY_PRICE', '5')
+PLAN_5_DAYS_PRICE = environ.get('PLAN_5_DAYS_PRICE', '12')
+PLAN_15_DAYS_PRICE = environ.get('PLAN_15_DAYS_PRICE', '25')
+PLAN_30_DAYS_PRICE = environ.get('PLAN_30_DAYS_PRICE', '39')
+PLAN_LIFETIME_PRICE = environ.get('PLAN_LIFETIME_PRICE', '129')
 
 PAYMENT_URL = environ.get('PAYMENT_URL', 'https://t.me/Phantom_Devil')
 SUPPORT_USERNAME = environ.get('SUPPORT_USERNAME', 'https://t.me/Phantom_Devil')
