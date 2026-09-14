@@ -319,8 +319,6 @@ class Database:
             expiry_time = user_data.get("expiry_time")
             if expiry_time is None:
                 return False
-            elif isinstance(expiry_time, str) and expiry_time.lower() == "lifetime":
-                return True
             elif isinstance(expiry_time, datetime.datetime):
                 if expiry_time.tzinfo is not None:
                     expiry_time = expiry_time.replace(tzinfo=None)
@@ -438,11 +436,7 @@ class Database:
         
     async def all_premium_users(self):
         count = await self.users.count_documents({
-            "$or": [
-                {"expiry_time": "lifetime"},
-                {"expiry_time": "Lifetime"},
-                {"expiry_time": {"$gt": datetime.datetime.now()}}
-            ]
+            "expiry_time": {"$gt": datetime.datetime.now()}
         })
         return count
     
