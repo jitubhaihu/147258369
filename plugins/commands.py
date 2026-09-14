@@ -47,9 +47,9 @@ async def start(client, message):
             _, userid, verify_id, file_id = m.command[1].split("_", 3)
             user_id = int(userid)
             grp_id = temp.VERIFICATIONS.get(user_id, 0)
-            settings = await get_settings(grp_id)         
+            settings = await get_settings(grp_id) if grp_id else {}
             verify_id_info = await db.get_verify_id_info(user_id, verify_id)
-            if not verify_id_info or verify_id_info["verified"]:
+            if not verify_id_info or verify_id_info.get("verified"):
                 return await message.reply(script.LINK_EXPIRED_TXT)  
 
             ist_timezone = pytz.timezone('Asia/Kolkata')
@@ -63,7 +63,7 @@ async def start(client, message):
             if key == "third_time_verified": 
                 num = 3 
             else: 
-                num =  2 if key == "second_time_verified" else 1 
+                num = 2 if key == "second_time_verified" else 1 
             if key == "third_time_verified": 
                 msg = script.THIRDT_VERIFY_COMPLETE_TEXT
             else:
@@ -72,20 +72,42 @@ async def start(client, message):
                 verifiedfiles = f"https://telegram.me/{temp.U_NAME}?start=allfiles_{grp_id}_{file_id}"
             else:
                 verifiedfiles = f"https://telegram.me/{temp.U_NAME}?start=file_{grp_id}_{file_id}"
-            await client.send_message(settings['log'], script.VERIFIED_LOG_TEXT.format(m.from_user.mention, user_id, datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%d %B %Y'), num))
+            
+            try:
+                log_chat = (settings.get('log') if settings else LOG_CHANNEL) or LOG_CHANNEL
+                if log_chat and str(log_chat) != "-100":
+                    await client.send_message(log_chat, script.VERIFIED_LOG_TEXT.format(m.from_user.mention, user_id, datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%d %B %Y'), num))
+            except Exception as log_err:
+                logger.error(f"Error sending verification log: {log_err}")
+
             btn = [[
                 InlineKeyboardButton("✅ ᴄʟɪᴄᴋ ʜᴇʀᴇ ᴛᴏ ɢᴇᴛ ꜰɪʟᴇ ✅", url=verifiedfiles),
             ]]
             reply_markup=InlineKeyboardMarkup(btn)
-            dlt=await m.reply_photo(
-                photo=(VERIFY_IMG),
-                caption=msg.format(message.from_user.mention, get_readable_time(TWO_VERIFY_GAP)),
-                reply_markup=reply_markup,
-                parse_mode=enums.ParseMode.HTML
-            )
-            await sticker.delete()
+            try:
+                dlt=await m.reply_photo(
+                    photo=(VERIFY_IMG),
+                    caption=msg.format(message.from_user.mention, get_readable_time(TWO_VERIFY_GAP)),
+                    reply_markup=reply_markup,
+                    parse_mode=enums.ParseMode.HTML
+                )
+            except Exception as photo_err:
+                logger.warning(f"VERIFY_IMG reply_photo failed ({photo_err}), fallback to reply_text")
+                dlt=await m.reply_text(
+                    text=msg.format(message.from_user.mention, get_readable_time(TWO_VERIFY_GAP)),
+                    reply_markup=reply_markup,
+                    parse_mode=enums.ParseMode.HTML
+                )
+            if sticker:
+                try:
+                    await sticker.delete()
+                except Exception:
+                    pass
             await asyncio.sleep(300)
-            await dlt.delete()
+            try:
+                await dlt.delete()
+            except Exception:
+                pass
             return         
         if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
             buttons = [[
@@ -297,7 +319,7 @@ async def start(client, message):
                 user_verified = False
 
             if not user_verified:
-                gplink_url = f"https://telegram.me/{temp.U_NAME}"
+                gplink_url = None
                 try:
                     grp_id_int = int(grp_id) if grp_id else 0
                     verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
@@ -308,6 +330,14 @@ async def start(client, message):
                     gplink_url = await get_gplink(target_link)
                 except Exception as e:
                     logger.error(f"Error building GPLink URL: {e}")
+                    gplink_url = None
+
+                if gplink_url and (gplink_url.startswith("http://") or gplink_url.startswith("https://")):
+                    gplink_button = InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                    gplink_info = "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>"
+                else:
+                    gplink_button = InlineKeyboardButton("📲 Contact Owner (GPLink API Error)", url=OWNER_LNK)
+                    gplink_info = "⚠️ <b>GPLink Verification Error:</b> API Key (<code>GPLINKS_API_KEY</code>) is missing or GPLink service unreachable. Contact Owner or Buy Premium."
 
                 buttons = [
                     [
@@ -319,14 +349,14 @@ async def start(client, message):
                         InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
                     ],
                     [
-                        InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                        gplink_button
                     ]
                 ]
                 reply_markup = InlineKeyboardMarkup(buttons)
                 caption = (
                     "🚫 <b>Daily Download Limit Reached!</b>\n\n"
                     "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
-                    "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
+                    f"{gplink_info}\n\n"
                     "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
                     f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
                     f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
@@ -429,6 +459,13 @@ async def start(client, message):
                             await db.create_verify_id(message.from_user.id, verify_id)
                             target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{message.from_user.id}_{verify_id}_{file.file_id}"
                             gplink_url = await get_gplink(target_link)
+                            if gplink_url and (gplink_url.startswith("http://") or gplink_url.startswith("https://")):
+                                gplink_button = InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                                gplink_info = "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>"
+                            else:
+                                gplink_button = InlineKeyboardButton("📲 Contact Owner (GPLink API Error)", url=OWNER_LNK)
+                                gplink_info = "⚠️ <b>GPLink Verification Error:</b> API Key (<code>GPLINKS_API_KEY</code>) is missing or GPLink service unreachable. Contact Owner or Buy Premium."
+
                             limit_btn = [
                                 [
                                     InlineKeyboardButton(f"⚡ 1 Day ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1"),
@@ -439,25 +476,34 @@ async def start(client, message):
                                     InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
                                 ],
                                 [
-                                    InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                                    gplink_button
                                 ]
                             ]
-                            await message.reply_photo(
-                                photo=SUBSCRIPTION,
-                                caption=(
-                                    "🚫 <b>Daily Download Limit Reached!</b>\n\n"
-                                    "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
-                                    "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
-                                    "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
-                                    f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
-                                    f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
-                                    f"💥 <b>15 Days</b> — ₹{PLAN_15_DAYS_PRICE}\n"
-                                    f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}"
-                                ),
-                                quote=True,
-                                reply_markup=InlineKeyboardMarkup(limit_btn),
-                                parse_mode=enums.ParseMode.HTML
+                            caption = (
+                                "🚫 <b>Daily Download Limit Reached!</b>\n\n"
+                                "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
+                                f"{gplink_info}\n\n"
+                                "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
+                                f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
+                                f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
+                                f"💥 <b>15 Days</b> — ₹{PLAN_15_DAYS_PRICE}\n"
+                                f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}"
                             )
+                            try:
+                                await message.reply_photo(
+                                    photo=SUBSCRIPTION,
+                                    caption=caption,
+                                    quote=True,
+                                    reply_markup=InlineKeyboardMarkup(limit_btn),
+                                    parse_mode=enums.ParseMode.HTML
+                                )
+                            except Exception:
+                                await message.reply_text(
+                                    text=caption,
+                                    quote=True,
+                                    reply_markup=InlineKeyboardMarkup(limit_btn),
+                                    parse_mode=enums.ParseMode.HTML
+                                )
                             break
                     file_id = file.file_id
                     files_ = await get_file_details(file_id)
