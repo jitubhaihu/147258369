@@ -300,8 +300,14 @@ async def start(client, message):
                         verify = await get_shortlink(f"https://telegram.me/{temp.U_NAME}?start=sendall_{user_id}_{verify_id}_{file_id}", grp_id, is_second_shortener, is_third_shortener)
                     else:
                         verify = await get_shortlink(f"https://telegram.me/{temp.U_NAME}?start=notcopy_{user_id}_{verify_id}_{file_id}", grp_id, is_second_shortener, is_third_shortener)
+                    if is_third_shortener:
+                        howtodownload = settings.get('tutorial_3', TUTORIAL_3)
+                    else:
+                        howtodownload = settings.get('tutorial_2', TUTORIAL_2) if is_second_shortener else settings.get('tutorial', TUTORIAL)
                     buttons = [[
                         InlineKeyboardButton(text="🔐 VERIFY NOW", url=verify)
+                    ],[
+                        InlineKeyboardButton(text="⁉️ ʜᴏᴡ ᴛᴏ ᴠᴇRɪꜰY ⁉️", url=howtodownload)
                     ]]
                     reply_markup=InlineKeyboardMarkup(buttons)
                     if await db.user_verified(user_id): 
@@ -386,7 +392,7 @@ async def start(client, message):
             ]
             return await message.reply_text(
                 "🚫 <b>Daily download limit reached.</b>\n\n"
-                "📦 <b>Free users can download only 5 files every 24 hours.</b>\n\n"
+                "📦 <b>Free users can download only 3 files every 24 hours.</b>\n\n"
                 "💎 <b>Upgrade to Premium for unlimited downloads.</b>",
                 quote=True,
                 reply_markup=InlineKeyboardMarkup(btn),
@@ -411,7 +417,7 @@ async def start(client, message):
                         ]
                         await message.reply_text(
                             "🚫 <b>Daily download limit reached.</b>\n\n"
-                            "📦 <b>Free users can download only 5 files every 24 hours.</b>\n\n"
+                            "📦 <b>Free users can download only 3 files every 24 hours.</b>\n\n"
                             "💎 <b>Upgrade to Premium for unlimited downloads.</b>",
                             quote=True,
                             reply_markup=InlineKeyboardMarkup(limit_btn),
