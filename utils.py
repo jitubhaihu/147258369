@@ -1187,4 +1187,20 @@ def get_paid_confirmation_content():
     return caption, InlineKeyboardMarkup(buttons)
 
 
+async def get_gplink(link):
+    api = GPLINKS_API_KEY
+    site = "gplinks.com"
+    if not api or str(api).strip() == "":
+        return link
+    try:
+        shortzy = Shortzy(api, site)
+        try:
+            return await shortzy.convert(link)
+        except Exception:
+            return await shortzy.get_quick_link(link)
+    except Exception as e:
+        logger.error(f"GPLink shortener error: {e}")
+        return link
+
+
 
