@@ -319,7 +319,7 @@ async def start(client, message):
                 user_verified = False
 
             if not user_verified:
-                gplink_url = None
+                gplink_url = "https://gplinks.com"
                 try:
                     grp_id_int = int(grp_id) if grp_id else 0
                     verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
@@ -330,14 +330,6 @@ async def start(client, message):
                     gplink_url = await get_gplink(target_link)
                 except Exception as e:
                     logger.error(f"Error building GPLink URL: {e}")
-                    gplink_url = None
-
-                if gplink_url and (gplink_url.startswith("http://") or gplink_url.startswith("https://")):
-                    gplink_button = InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
-                    gplink_info = "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>"
-                else:
-                    gplink_button = InlineKeyboardButton("📲 Contact Owner (GPLink API Error)", url=OWNER_LNK)
-                    gplink_info = "⚠️ <b>GPLink Verification Error:</b> API Key (<code>GPLINKS_API_KEY</code>) is missing or GPLink service unreachable. Contact Owner or Buy Premium."
 
                 buttons = [
                     [
@@ -349,14 +341,14 @@ async def start(client, message):
                         InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
                     ],
                     [
-                        gplink_button
+                        InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
                     ]
                 ]
                 reply_markup = InlineKeyboardMarkup(buttons)
                 caption = (
                     "🚫 <b>Daily Download Limit Reached!</b>\n\n"
                     "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
-                    f"{gplink_info}\n\n"
+                    "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
                     "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
                     f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
                     f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
@@ -459,13 +451,6 @@ async def start(client, message):
                             await db.create_verify_id(message.from_user.id, verify_id)
                             target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{message.from_user.id}_{verify_id}_{file.file_id}"
                             gplink_url = await get_gplink(target_link)
-                            if gplink_url and (gplink_url.startswith("http://") or gplink_url.startswith("https://")):
-                                gplink_button = InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
-                                gplink_info = "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>"
-                            else:
-                                gplink_button = InlineKeyboardButton("📲 Contact Owner (GPLink API Error)", url=OWNER_LNK)
-                                gplink_info = "⚠️ <b>GPLink Verification Error:</b> API Key (<code>GPLINKS_API_KEY</code>) is missing or GPLink service unreachable. Contact Owner or Buy Premium."
-
                             limit_btn = [
                                 [
                                     InlineKeyboardButton(f"⚡ 1 Day ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1"),
@@ -476,13 +461,13 @@ async def start(client, message):
                                     InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
                                 ],
                                 [
-                                    gplink_button
+                                    InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
                                 ]
                             ]
                             caption = (
                                 "🚫 <b>Daily Download Limit Reached!</b>\n\n"
                                 "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
-                                f"{gplink_info}\n\n"
+                                "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
                                 "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
                                 f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
                                 f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
