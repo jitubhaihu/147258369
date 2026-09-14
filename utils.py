@@ -513,17 +513,22 @@ async def search_gagala(text):
 async def get_shortlink(link, grp_id, is_second_shortener=False, is_third_shortener=False):
     settings = await get_settings(grp_id)
     if is_third_shortener:             
-        api, site = settings['api_three'], settings['shortner_three']
+        api, site = settings.get('api_three'), settings.get('shortner_three')
     else:
         if is_second_shortener:
-            api, site = settings['api_two'], settings['shortner_two']
+            api, site = settings.get('api_two'), settings.get('shortner_two')
         else:
-            api, site = settings['api'], settings['shortner']
-    shortzy = Shortzy(api, site)
+            api, site = settings.get('api'), settings.get('shortner')
+    if not api or not site or str(api).strip() == "" or str(site).strip() == "":
+        return link
     try:
-        link = await shortzy.convert(link)
+        shortzy = Shortzy(api, site)
+        try:
+            link = await shortzy.convert(link)
+        except Exception as e:
+            link = await shortzy.get_quick_link(link)
     except Exception as e:
-        link = await shortzy.get_quick_link(link)
+        logger.error(f"Shortener error: {e}")
     return link
 
 async def get_settings(group_id):
@@ -899,6 +904,11 @@ def generate_season_variations(search_raw: str, season_number: int):
 
 
 async def get_seconds(time_string):
+    if not time_string:
+        return 0
+    ts_clean = str(time_string).lower().strip()
+    if ts_clean in ["lifetime", "life time", "life_time"]:
+        return "lifetime"
     def extract_value_and_unit(ts):
         value = ""
         unit = ""
@@ -910,18 +920,20 @@ async def get_seconds(time_string):
         if value:
             value = int(value)
         return value, unit
-    value, unit = extract_value_and_unit(time_string)
-    if unit == 's':
+    value, unit = extract_value_and_unit(ts_clean)
+    if not value:
+        return 0
+    if unit in ['s', 'sec', 'second', 'seconds']:
         return value
-    elif unit == 'min':
+    elif unit in ['min', 'minute', 'minutes']:
         return value * 60
-    elif unit == 'hour':
+    elif unit in ['hour', 'hours', 'hr', 'hrs']:
         return value * 3600
-    elif unit == 'day':
+    elif unit in ['day', 'days', 'd']:
         return value * 86400
-    elif unit == 'month':
+    elif unit in ['month', 'months', 'm']:
         return value * 86400 * 30
-    elif unit == 'year':
+    elif unit in ['year', 'years', 'y']:
         return value * 86400 * 365
     else:
         return 0
@@ -1100,34 +1112,27 @@ def is_premium_movie(file_name_or_title: str) -> bool:
 
 def get_premium_plans_content():
     caption = (
-        "🏆 <b>AVAILABLE PLANS</b> 🏆\n\n"
-        "💎 <b>PREMIUM MEMBERSHIP</b> 💎\n\n"
-        f"⭕ 07 Days ➜ ₹{PLAN_7_DAYS_PRICE}\n"
-        f"⭕ 15 Days ➜ ₹{PLAN_15_DAYS_PRICE}\n"
-        f"⭕ 30 Days ➜ ₹{PLAN_30_DAYS_PRICE}\n"
-        f"⭕ 45 Days ➜ ₹{PLAN_45_DAYS_PRICE}\n"
-        f"⭕ 60 Days ➜ ₹{PLAN_60_DAYS_PRICE}\n\n"
+        "💎 <b>PREMIUM PLANS</b> 💎\n\n"
+        f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
+        f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
+        f"💥 <b>15 Days</b> — ₹{PLAN_15_DAYS_PRICE}\n"
+        f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}\n"
+        f"🚨 <b>Lifetime</b> — ₹{PLAN_LIFETIME_PRICE}\n\n"
         "━━━━━━━━━━━━━━━━━━━━\n\n"
-        "📌 <b>Subscription Process</b>\n\n"
-        "✅ Send payment screenshot after payment.\n\n"
-        "✅ Wait for admin approval.\n\n"
+        "📌 <b>Subscription Process</b>\n"
+        "✅ Select a plan below to view payment details.\n"
+        "✅ Send payment screenshot to owner/admin after payment.\n"
+        "✅ Premium will be activated after payment verification.\n"
         "━━━━━━━━━━━━━━━━━━━━"
     )
     buttons = [
-        [
-            InlineKeyboardButton(f"07 Days ₹{PLAN_7_DAYS_PRICE}", callback_data="plan_7"),
-            InlineKeyboardButton(f"15 Days ₹{PLAN_15_DAYS_PRICE}", callback_data="plan_15")
-        ],
-        [
-            InlineKeyboardButton(f"30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30"),
-            InlineKeyboardButton(f"45 Days ₹{PLAN_45_DAYS_PRICE}", callback_data="plan_45")
-        ],
-        [
-            InlineKeyboardButton(f"60 Days ₹{PLAN_60_DAYS_PRICE}", callback_data="plan_60")
-        ],
-        [
-            InlineKeyboardButton("⬅ Back", callback_data="premium_info")
-        ]
+        [InlineKeyboardButton(f"⚡ 1 DAY ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1")],
+        [InlineKeyboardButton(f"🔥 5 DAYS ₹{PLAN_5_DAYS_PRICE}", callback_data="plan_5")],
+        [InlineKeyboardButton(f"💥 15 DAYS ₹{PLAN_15_DAYS_PRICE}", callback_data="plan_15")],
+        [InlineKeyboardButton(f"🏆 30 DAYS ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")],
+        [InlineKeyboardButton(f"🚨 LIFETIME ₹{PLAN_LIFETIME_PRICE}", callback_data="plan_lifetime")],
+        [InlineKeyboardButton("📲 CONTACT ADMIN / OWNER", url=OWNER_LNK)],
+        [InlineKeyboardButton("❌ CLOSE", callback_data="close_data")]
     ]
     return caption, InlineKeyboardMarkup(buttons)
 
@@ -1141,36 +1146,34 @@ def generate_upi_link(days: Union[int, str], amount: Union[int, str]) -> str:
 
 def get_plan_details_content(plan_key: str):
     plans_map = {
-        "plan_7": ("07", PLAN_7_DAYS_PRICE),
-        "plan_07": ("07", PLAN_7_DAYS_PRICE),
-        "plan_15": ("15", PLAN_15_DAYS_PRICE),
-        "plan_30": ("30", PLAN_30_DAYS_PRICE),
-        "plan_45": ("45", PLAN_45_DAYS_PRICE),
-        "plan_60": ("60", PLAN_60_DAYS_PRICE),
+        "plan_1": ("1 Day", PLAN_1_DAY_PRICE),
+        "plan_5": ("5 Days", PLAN_5_DAYS_PRICE),
+        "plan_15": ("15 Days", PLAN_15_DAYS_PRICE),
+        "plan_30": ("30 Days", PLAN_30_DAYS_PRICE),
+        "plan_lifetime": ("Lifetime", PLAN_LIFETIME_PRICE),
     }
     if plan_key not in plans_map:
         return None, None
 
     days, price = plans_map[plan_key]
     caption = (
-        f"💎 <b>SELECTED PLAN : {days} DAYS</b>\n\n"
+        f"💎 <b>SELECTED PLAN : {days.upper()}</b>\n\n"
         f"💰 <b>AMOUNT : ₹{price}</b>\n\n"
         "━━━━━━━━━━━━━━━━━━━━\n\n"
         "📱 <b>PAYMENT METHOD</b>\n\n"
-        "Scan the QR Code above.\n\n"
-        "OR\n\n"
-        "💳 <b>UPI ID</b>\n\n"
+        "Scan QR Code or pay using UPI:\n\n"
+        "💳 <b>UPI ID</b>\n"
         f"<code>{UPI_ID}</code>\n\n"
         "━━━━━━━━━━━━━━━━━━━━\n\n"
-        "⚠️ <b>IMPORTANT</b>\n\n"
-        f"• Pay exactly ₹{price}.\n\n"
-        "• Send payment screenshot after payment.\n\n"
-        "• Premium will be activated after payment verification.\n\n"
+        "⚠️ <b>IMPORTANT</b>\n"
+        f"• Pay exactly ₹{price}.\n"
+        "• Send payment screenshot after payment.\n"
+        "• Premium will be activated after verification.\n"
         "━━━━━━━━━━━━━━━━━━━━"
     )
     buttons = [
-        [InlineKeyboardButton("✅ I HAVE PAID", callback_data="paid_info")],
-        [InlineKeyboardButton("⬅ BACK", callback_data="buy_info")]
+        [InlineKeyboardButton("📤 SEND PAYMENT SCREENSHOT", url=OWNER_LNK)],
+        [InlineKeyboardButton("⬅ BACK TO PLANS", callback_data="buy_info")]
     ]
     return caption, InlineKeyboardMarkup(buttons)
 
