@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 import requests
 from shortzy import Shortzy
 
-from urllib.parse import quote
+from urllib.parse import quote, quote_plus
 from plugins.Dreamxfutures.Imdbposter import get_movie_detailsx
 
 logger = logging.getLogger(__name__)
@@ -1188,27 +1188,31 @@ def get_paid_confirmation_content():
 
 
 async def get_gplink(link):
-    api = GPLINKS_API_KEY or SHORTENER_API
+    api = environ.get("GPLINKS_API_KEY", "").strip() or GPLINKS_API_KEY or SHORTENER_API
     site = "gplinks.com"
-    if not api or str(api).strip() == "":
-        logger.warning("GPLINKS_API_KEY is missing or empty.")
-        return None
+    if not api:
+        logger.warning("GPLINKS_API_KEY is missing from environment. Using GPLinks API format fallback.")
+        return f"https://gplinks.com/api?api=YOUR_GPLINKS_API_KEY&url={quote_plus(link)}"
     try:
-        shortzy = Shortzy(api.strip(), site)
+        shortzy = Shortzy(api, site)
         try:
             converted = await shortzy.convert(link)
             if converted and (converted.startswith("http://") or converted.startswith("https://")):
                 return converted
         except Exception as conv_err:
-            logger.warning(f"Shortzy convert failed ({conv_err}), attempting quick_link...")
+            logger.warning(f"Shortzy convert failed ({conv_err}), attempting quick_link API format fallback...")
         
-        quick = await shortzy.get_quick_link(link)
-        if quick and (quick.startswith("http://") or quick.startswith("https://")):
-            return quick
-        return None
+        try:
+            quick = await shortzy.get_quick_link(link)
+            if quick and (quick.startswith("http://") or quick.startswith("https://")):
+                return quick
+        except Exception:
+            pass
+
+        return f"https://gplinks.com/api?api={api}&url={quote_plus(link)}"
     except Exception as e:
         logger.error(f"GPLink shortener error: {e}")
-        return None
+        return f"https://gplinks.com/api?api={api}&url={quote_plus(link)}"
 
 
 
