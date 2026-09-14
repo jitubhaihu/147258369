@@ -110,25 +110,23 @@ LANDSCAPE_POSTER = bool(environ.get('LANDSCAPE_POSTER', True)) # Shows landscape
 # ============================
 # Verification Settings
 # ============================
-IS_VERIFY = is_enabled('IS_VERIFY', False)  # Verification On (True) / Off (False)
+IS_VERIFY = is_enabled(environ.get('IS_VERIFY', 'True'), True)  # Verification On (True) / Off (False)
 LOG_VR_CHANNEL = int(environ.get('LOG_VR_CHANNEL', '-100')) #Verification Channel Id 
-LOG_API_CHANNEL = int(environ.get('LOG_API_CHANNEL', '-100')) #If Anyone Set Your Bot In Any Group And Set Shortner In That Group Then In This Channel The All Details Come
 VERIFY_IMG = environ.get("VERIFY_IMG", "https://telegra.ph/file/9ecc5d6e4df5b83424896.jpg")
 
 TUTORIAL = environ.get("TUTORIAL", "https://t.me/dreamxbotz")   # Tutorial link for verification
 TUTORIAL_2 = environ.get("TUTORIAL_2", "https://t.me/dreamxbotz")   # Second tutorial link for verification
 TUTORIAL_3 = environ.get("TUTORIAL_3", "https://t.me/dreamxbotz")   # Third tutorial link for verification
 
-# GPLinks & Shortener Configuration
-GPLINKS_API_KEY = environ.get("GPLINKS_API_KEY", "")
-SHORTENER_API = environ.get("SHORTENER_API", GPLINKS_API_KEY) # Shortener API key
+# Verification (Must Fill All Veriables. Else You Got Error
+SHORTENER_API = environ.get("SHORTENER_API", "457d9a6327d60c44d26abb2ec3fb524fe5d8250b") # Shortener API key
 SHORTENER_WEBSITE = environ.get("SHORTENER_WEBSITE", "gplinks.com") # Shortener website
 
-SHORTENER_API2 = environ.get("SHORTENER_API2", SHORTENER_API)  # Shortener API key for second website
-SHORTENER_WEBSITE2 = environ.get("SHORTENER_WEBSITE2", SHORTENER_WEBSITE) # Shortener website for second website
+SHORTENER_API2 = environ.get("SHORTENER_API2", "457d9a6327d60c44d26abb2ec3fb524fe5d8250b")  # Shortener API key for second website
+SHORTENER_WEBSITE2 = environ.get("SHORTENER_WEBSITE2", "gplinks.com") # Shortener website for second website
 
-SHORTENER_API3 = environ.get("SHORTENER_API3", SHORTENER_API)  
-SHORTENER_WEBSITE3 = environ.get("SHORTENER_WEBSITE3", SHORTENER_WEBSITE) # Shortener website for third website
+SHORTENER_API3 = environ.get("SHORTENER_API3", "457d9a6327d60c44d26abb2ec3fb524fe5d8250b")
+SHORTENER_WEBSITE3 = environ.get("SHORTENER_WEBSITE3", "gplinks.com") # Shortener website for third website
 
 TWO_VERIFY_GAP = int(environ.get('TWO_VERIFY_GAP', "1200")) # Time gap for two-step verification in seconds (default: 20 minutes)
 THREE_VERIFY_GAP = int(environ.get('THREE_VERIFY_GAP', "54000"))    
