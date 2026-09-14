@@ -1188,19 +1188,27 @@ def get_paid_confirmation_content():
 
 
 async def get_gplink(link):
-    api = GPLINKS_API_KEY
+    api = GPLINKS_API_KEY or SHORTENER_API
     site = "gplinks.com"
     if not api or str(api).strip() == "":
-        return link
+        logger.warning("GPLINKS_API_KEY is missing or empty.")
+        return None
     try:
-        shortzy = Shortzy(api, site)
+        shortzy = Shortzy(api.strip(), site)
         try:
-            return await shortzy.convert(link)
-        except Exception:
-            return await shortzy.get_quick_link(link)
+            converted = await shortzy.convert(link)
+            if converted and (converted.startswith("http://") or converted.startswith("https://")):
+                return converted
+        except Exception as conv_err:
+            logger.warning(f"Shortzy convert failed ({conv_err}), attempting quick_link...")
+        
+        quick = await shortzy.get_quick_link(link)
+        if quick and (quick.startswith("http://") or quick.startswith("https://")):
+            return quick
+        return None
     except Exception as e:
         logger.error(f"GPLink shortener error: {e}")
-        return link
+        return None
 
 
 
