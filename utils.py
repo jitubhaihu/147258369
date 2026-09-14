@@ -907,8 +907,6 @@ async def get_seconds(time_string):
     if not time_string:
         return 0
     ts_clean = str(time_string).lower().strip()
-    if ts_clean in ["lifetime", "life time", "life_time"]:
-        return "lifetime"
     def extract_value_and_unit(ts):
         value = ""
         unit = ""
@@ -1116,8 +1114,7 @@ def get_premium_plans_content():
         f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
         f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
         f"💥 <b>15 Days</b> — ₹{PLAN_15_DAYS_PRICE}\n"
-        f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}\n"
-        f"🚨 <b>Lifetime</b> — ₹{PLAN_LIFETIME_PRICE}\n\n"
+        f"🏆 <b>30 Days</b> — ₹{PLAN_30_DAYS_PRICE}\n\n"
         "━━━━━━━━━━━━━━━━━━━━\n\n"
         "📌 <b>Subscription Process</b>\n"
         "✅ Select a plan below to view payment details.\n"
@@ -1126,11 +1123,9 @@ def get_premium_plans_content():
         "━━━━━━━━━━━━━━━━━━━━"
     )
     buttons = [
-        [InlineKeyboardButton(f"⚡ 1 DAY ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1")],
-        [InlineKeyboardButton(f"🔥 5 DAYS ₹{PLAN_5_DAYS_PRICE}", callback_data="plan_5")],
-        [InlineKeyboardButton(f"💥 15 DAYS ₹{PLAN_15_DAYS_PRICE}", callback_data="plan_15")],
-        [InlineKeyboardButton(f"🏆 30 DAYS ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")],
-        [InlineKeyboardButton(f"🚨 LIFETIME ₹{PLAN_LIFETIME_PRICE}", callback_data="plan_lifetime")],
+        [InlineKeyboardButton(f"⚡ 1 DAY ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1"), InlineKeyboardButton(f"🔥 5 DAYS ₹{PLAN_5_DAYS_PRICE}", callback_data="plan_5")],
+        [InlineKeyboardButton(f"💥 15 DAYS ₹{PLAN_15_DAYS_PRICE}", callback_data="plan_15"), InlineKeyboardButton(f"🏆 30 DAYS ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")],
+        [InlineKeyboardButton("⁉️ HOW TO VERIFY / TUTORIAL", url=TUTORIAL)],
         [InlineKeyboardButton("📲 CONTACT ADMIN / OWNER", url=OWNER_LNK)],
         [InlineKeyboardButton("❌ CLOSE", callback_data="close_data")]
     ]
@@ -1150,7 +1145,6 @@ def get_plan_details_content(plan_key: str):
         "plan_5": ("5 Days", PLAN_5_DAYS_PRICE),
         "plan_15": ("15 Days", PLAN_15_DAYS_PRICE),
         "plan_30": ("30 Days", PLAN_30_DAYS_PRICE),
-        "plan_lifetime": ("Lifetime", PLAN_LIFETIME_PRICE),
     }
     if plan_key not in plans_map:
         return None, None
