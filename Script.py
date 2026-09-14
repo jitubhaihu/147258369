@@ -364,18 +364,15 @@ sʜᴏᴡɴ ɪɴ : {remaining_seconds} <i>sᴇᴄ</i>⚡️
 
     
 
-    PREMIUM_TEXT = """<blockquote>🎖 <b>ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs</b></blockquote>
+    PREMIUM_TEXT = """<b>💎 PREMIUM PLANS 💎</b>
 
-
-  ◉ 07 ᴅᴀʏꜱ  ➠  ₹20
-  ◉ 15 ᴅᴀʏꜱ  ➠  ₹40
-  ◉ 30 ᴅᴀʏꜱ  ➠  ₹60
-  ◉ 45 ᴅᴀʏꜱ  ➠  ₹90
-  ◉ 60 ᴅᴀʏꜱ  ➠  ₹120
+⚡ <b>1 Day</b> — ₹5
+🔥 <b>5 Days</b> — ₹12
+💥 <b>15 Days</b> — ₹25
+🏆 <b>30 Days</b> — ₹39
+🚨 <b>Lifetime</b> — ₹129
 
 •─────•─────────•─────•
-
-
 ‼️ ᴍᴜꜱᴛ ꜱᴇɴᴅ ꜱᴄʀᴇᴇɴꜱʜᴏᴛ ᴀꜰᴛᴇʀ ᴘᴀʏᴍᴇɴᴛ.
 ‼️ ᴀꜰᴛᴇʀ ꜱᴇɴᴅɪɴɢ ꜱᴄʀᴇᴇɴꜱʜᴏᴛ ɢɪᴠᴇ ᴜꜱ ꜱᴏᴍᴇᴛɪᴍᴇꜱ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴘʀᴇᴍɪᴜᴍ ʟɪꜱᴛ."""
 
@@ -433,13 +430,13 @@ sʜᴏᴡɴ ɪɴ : {remaining_seconds} <i>sᴇᴄ</i>⚡️
 
     PREPLANS_TXT = PREMIUM_TXT = """<b>👋 ʜᴇʏ {},
 
-<blockquote>🎖 <b>ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴꜱ</b></blockquote>
+<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>
 
-  ◉ 07 ᴅᴀʏꜱ  ➠  ₹20
-  ◉ 15 ᴅᴀʏꜱ  ➠  ₹40
-  ◉ 30 ᴅᴀʏꜱ  ➠  ₹60
-  ◉ 45 ᴅᴀʏꜱ  ➠  ₹90
-  ◉ 60 ᴅᴀʏꜱ  ➠  ₹120 
+⚡ <b>1 Day</b> — ₹5
+🔥 <b>5 Days</b> — ₹12
+💥 <b>15 Days</b> — ₹25
+🏆 <b>30 Days</b> — ₹39
+🚨 <b>Lifetime</b> — ₹129
 
 •─────•─────────•─────•
 
