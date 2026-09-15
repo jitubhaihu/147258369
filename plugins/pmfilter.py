@@ -321,7 +321,7 @@ async def next_page(bot, query):
                 cap = await get_cap(settings, remaining_seconds, files, query, total, dreamx_title, offset)
                 if query.message.caption:
                     try:
-                        await message.reply_photo(photo=photo, caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML, has_spoiler=True)
+                        await query.message.edit_caption(caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
                     except (MessageNotModified, MessageIdInvalid):
                         pass
                     except Exception as e:
