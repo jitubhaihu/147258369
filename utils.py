@@ -10,7 +10,7 @@ from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors import InputUserDeactivated, UserNotParticipant, FloodWait, UserIsBlocked, PeerIdInvalid, ChatAdminRequired, MessageNotModified
 from pyrogram import enums
 from typing import Union
-from Script import script
+from Script import scriptI
 from typing import List
 from database.users_chats_db import db
 from bs4 import BeautifulSoup
