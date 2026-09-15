@@ -242,7 +242,15 @@ if 'DYNO' in environ:
 else:
     ON_HEROKU = False
 BIND_ADRESS = str(getenv('WEB_SERVER_BIND_ADDRESS', '0.0.0.0'))
-FQDN = str(getenv('FQDN', BIND_ADRESS)) if not ON_HEROKU or getenv('FQDN') else APP_NAME+'.herokuapp.com'
+FQDN = str(getenv('FQDN', '')).strip()
+if not FQDN or FQDN in ('0.0.0.0', '127.0.0.1', 'localhost'):
+    FQDN = str(getenv('RENDER_EXTERNAL_HOSTNAME', '')).strip()
+if not FQDN:
+    render_url = str(getenv('RENDER_EXTERNAL_URL', '')).strip()
+    if render_url:
+        FQDN = render_url.replace('https://', '').replace('http://', '').rstrip('/')
+if not FQDN and ON_HEROKU:
+    FQDN = APP_NAME + '.herokuapp.com'
 URL = "https://{}/".format(FQDN) if ON_HEROKU or NO_PORT else "https://{}/".format(FQDN, PORT)
 SLEEP_THRESHOLD = int(environ.get('SLEEP_THRESHOLD', '60'))
 WORKERS = int(environ.get('WORKERS', '4'))
