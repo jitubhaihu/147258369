@@ -53,21 +53,11 @@ async def start(client, message):
                 return await message.reply(script.LINK_EXPIRED_TXT)  
 
             ist_timezone = pytz.timezone('Asia/Kolkata')
-            if await db.user_verified(user_id):
-                key = "third_time_verified"
-            else:
-                key = "second_time_verified" if await db.is_user_verified(user_id) else "last_verified"
             current_time = datetime.now(tz=ist_timezone)
-            result = await db.update_notcopy_user(user_id, {key:current_time})
-            await db.update_verify_id_info(user_id, verify_id, {"verified":True})
-            if key == "third_time_verified": 
-                num = 3 
-            else: 
-                num = 2 if key == "second_time_verified" else 1 
-            if key == "third_time_verified": 
-                msg = script.THIRDT_VERIFY_COMPLETE_TEXT
-            else:
-                msg = script.SECOND_VERIFY_COMPLETE_TEXT if key == "second_time_verified" else script.VERIFY_COMPLETE_TEXT
+            await db.update_notcopy_user(user_id, {"last_verified": current_time})
+            await db.update_verify_id_info(user_id, verify_id, {"verified": True})
+            num = 1
+            msg = script.VERIFY_COMPLETE_TEXT
             if message.command[1].startswith('sendall'):
                 verifiedfiles = f"https://telegram.me/{temp.U_NAME}?start=allfiles_{grp_id}_{file_id}"
             else:
@@ -342,6 +332,9 @@ async def start(client, message):
                     ],
                     [
                         InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                    ],
+                    [
+                        InlineKeyboardButton("⁉️ HOW TO VERIFY / TUTORIAL", url=TUTORIAL)
                     ]
                 ]
                 reply_markup = InlineKeyboardMarkup(buttons)
@@ -462,6 +455,9 @@ async def start(client, message):
                                 ],
                                 [
                                     InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                                ],
+                                [
+                                    InlineKeyboardButton("⁉️ HOW TO VERIFY / TUTORIAL", url=TUTORIAL)
                                 ]
                             ]
                             caption = (
