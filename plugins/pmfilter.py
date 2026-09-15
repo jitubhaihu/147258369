@@ -219,15 +219,15 @@ async def next_page(bot, query):
             off_set = offset - 10
         if n_offset == 0:
             btn.append(
-                [InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1}", callback_data="pages")]
+                [InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages")]
             )
         elif off_set is None:
-            btn.append([InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1}", callback_data="pages"), InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}")])
+            btn.append([InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages"), InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages"), InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}")])
         else:
             btn.append(
                 [
                     InlineKeyboardButton("⋞ ʙᴀᴄᴋ", callback_data=f"next_{req}_{key}_{off_set}"),
-                    InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1}", callback_data="pages"),
+                    InlineKeyboardButton(f"{math.ceil(int(offset)/10)+1} / {math.ceil(total/10)}", callback_data="pages"),
                     InlineKeyboardButton("ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{n_offset}")
                 ],
             )
@@ -734,7 +734,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
         query_input = generate_season_variations(search, season_number)
         search_final = query_input[0] if query_input else search
 
-    BUTTONS[key] = search_final
+    BUTTONS[key] = query_input
     try:
         if int(query.from_user.id) not in [query.message.reply_to_message.from_user.id, 0]:
             return await query.answer("⚠️ Not your request", show_alert=True)
@@ -1908,7 +1908,7 @@ async def auto_filter(client, msg, spoll=False):
             if ULTRA_FAST_MODE:
                 btn.append(
                     [InlineKeyboardButton("ᴘᴀɢᴇ", callback_data="pages"), InlineKeyboardButton(
-                        text="1", callback_data="pages"), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}")]
+                        text=f"1/{math.ceil(int(total_results)/10)}", callback_data="pages"), InlineKeyboardButton(text="ɴᴇxᴛ ⋟", callback_data=f"next_{req}_{key}_{offset}")]
                 )
             else:
                 try:
