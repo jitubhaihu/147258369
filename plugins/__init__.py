@@ -40,10 +40,12 @@ async def keep_alive():
     async with aiohttp.ClientSession() as session:
         while True:
             await asyncio.sleep(298)
+            if not URL or URL in ("https:///", "http:///", "https://0.0.0.0/", "http://0.0.0.0/"):
+                continue
             try:
                 async with session.get(URL) as resp:
                     if resp.status != 200:
                         logging.warning(f"⚠️ Ping Error! Status: {resp.status}")
             except Exception as e:
-                logging.error(f"❌ Ping Failed: {e}")           
+                logging.error(f"❌ Ping Failed: {e}")
 
