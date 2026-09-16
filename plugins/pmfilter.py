@@ -6,14 +6,6 @@ from urllib.parse import quote_plus
 import logging
 from database.ia_filterdb import Media, Media2, get_file_details, get_search_results, get_bad_files
 from database.config_db import mdb
-from pyrogram.errors import MessageIdInvalid, UserIsBlocked, MessageNotModified, PeerIdInvalidfrom utils import get_random_mix_id, get_size, is_subscribed, is_req_subscribed, group_setting_buttons, get_poster, get_posterx, temp, get_settings, save_group_settings, get_cap, imdb, is_check_admin, extract_request_content, log_error, clean_filename, generate_season_variations, clean_search_text, is_premium_movie, get_premium_plans_content, get_plan_details_content, get_paid_confirmation_content
-import tracemalloc
-from fuzzywuzzy import process
-from dreamxbotz.util.file_properties import get_name, get_hash
-from urllib.parse import quote_plus
-import logging
-from database.ia_filterdb import Media, Media2, get_file_details, get_search_results, get_bad_files
-from database.config_db import mdb
 from pyrogram.errors import MessageIdInvalid, UserIsBlocked, MessageNotModified, PeerIdInvalid
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto, WebAppInfo
@@ -1673,12 +1665,15 @@ async def cb_handler(client: Client, query: CallbackQuery):
         try:
             caption, reply_markup = get_plan_details_content(query.data)
             if caption and reply_markup:
-                await client.edit_message_media(
-                    chat_id=query.message.chat.id,
-                    message_id=query.message.id,
-                    media=InputMediaPhoto(media=QR_CODE, caption=caption, parse_mode=enums.ParseMode.HTML),
-                    reply_markup=reply_markup
-                )
+                try:
+                    await client.edit_message_media(
+                        chat_id=query.message.chat.id,
+                        message_id=query.message.id,
+                        media=InputMediaPhoto(media=QR_CODE, caption=caption, parse_mode=enums.ParseMode.HTML),
+                        reply_markup=reply_markup
+                    )
+                except MessageNotModified:
+                    pass
         except Exception as e:
             logging.exception("Exception in plan callback")
 
