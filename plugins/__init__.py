@@ -18,34 +18,55 @@ async def web_server():
     return web_app
 
 async def check_expired_premium(client):
-    while 1:
+    while True:
         data = await db.get_expired(datetime.now())
         for user in data:
             user_id = user["id"]
             await db.remove_premium_access(user_id)
+
+            # User notification: a blocked/deleted user should not stop the expiry loop.
             try:
-                user = await client.get_users(user_id)
+                tg_user = await client.get_users(user_id)
                 await client.send_message(
                     chat_id=user_id,
-                    text=script.PREMIUM_END_TEXT.format(user.mention)
+                    text=script.PREMIUM_END_TEXT.format(tg_user.mention)
                 )
-                await client.send_message(PREMIUM_LOGS, text=f"<b>#Premium_Expire\n\nUser name: {user.mention}\nUser id: <code>{user_id}</code>")
             except Exception as e:
-                logging.error("Premium expire notification error: %s", e)
+                logging.warning("Premium user notification skipped for %s: %s", user_id, e)
+
+            # Premium log channel is optional. An invalid/missing channel ID must
+            # never break premium expiry processing.
+            if PREMIUM_LOGS and int(PREMIUM_LOGS) not in (-100, 0):
+                try:
+                    tg_user = locals().get("tg_user") or await client.get_users(user_id)
+                    await client.send_message(
+                        chat_id=PREMIUM_LOGS,
+                        text=f"<b>#Premium_Expire\n\nUser name: {tg_user.mention}\nUser id: <code>{user_id}</code>"
+                    )
+                except Exception as e:
+                    logging.warning("Premium expiry log skipped for %s: %s", PREMIUM_LOGS, e)
+
             await sleep(0.5)
         await sleep(1)
 
 async def keep_alive():
-    """Keep bot alive by sending periodic pings."""
-    async with aiohttp.ClientSession() as session:
+    """Keep the Render service alive using its public hostname only."""
+    # URL is intentionally empty if Render did not provide a public hostname.
+    # Never attempt to connect to 0.0.0.0.
+    if not URL or "0.0.0.0" in URL or "127.0.0.1" in URL or "localhost" in URL:
+        logging.info("Keep-alive skipped: no valid public URL configured.")
+        return
+
+    interval = max(60, int(PING_INTERVAL or 1200))
+    timeout = aiohttp.ClientTimeout(total=30)
+
+    async with aiohttp.ClientSession(timeout=timeout) as session:
         while True:
-            await asyncio.sleep(298)
-            if not URL or URL in ("https:///", "http:///", "https://0.0.0.0/", "http://0.0.0.0/"):
-                continue
+            await asyncio.sleep(interval)
             try:
-                async with session.get(URL) as resp:
+                async with session.get(URL, allow_redirects=True) as resp:
                     if resp.status != 200:
-                        logging.warning(f"⚠️ Ping Error! Status: {resp.status}")
+                        logging.warning("⚠️ Ping Error! Status: %s", resp.status)
             except Exception as e:
-                logging.error(f"❌ Ping Failed: {e}")
+                logging.warning("⚠️ Ping Failed for %s: %s", URL, e)
 
