@@ -241,33 +241,38 @@ if 'DYNO' in environ:
     APP_NAME = environ.get('APP_NAME')
 else:
     ON_HEROKU = False
-BIND_ADRESS = str(getenv('WEB_SERVER_BIND_ADDRESS', '0.0.0.0'))
+BIND_ADRESS = str(getenv('WEB_SERVER_BIND_ADDRESS', '0.0.0.0')).strip()
+
+# Public URL used only for keep-alive requests.
+# Never fall back to the bind address (0.0.0.0), because it is not a public host.
 FQDN = str(getenv('FQDN', '')).strip()
-if not FQDN or FQDN in ('0.0.0.0', '127.0.0.1', 'localhost'):
+if FQDN in ('0.0.0.0', '127.0.0.1', 'localhost'):
+    FQDN = ''
+
+if not FQDN:
     FQDN = str(getenv('RENDER_EXTERNAL_HOSTNAME', '')).strip()
+
 if not FQDN:
     render_url = str(getenv('RENDER_EXTERNAL_URL', '')).strip()
     if render_url:
         FQDN = render_url.replace('https://', '').replace('http://', '').rstrip('/')
+
 if not FQDN and ON_HEROKU:
-    FQDN = APP_NAME + '.herokuapp.com'
-URL = "https://{}/".format(FQDN) if ON_HEROKU or NO_PORT else "https://{}/".format(FQDN, PORT)
+    FQDN = str(APP_NAME or '').strip() + '.herokuapp.com'
+
 SLEEP_THRESHOLD = int(environ.get('SLEEP_THRESHOLD', '60'))
 WORKERS = int(environ.get('WORKERS', '4'))
 SESSION_NAME = str(environ.get('SESSION_NAME', 'dreamXBotz'))
 MULTI_CLIENT = False
 name = str(environ.get('name', 'DREAMXBOTZ'))
 PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))  # 20 minutes
-if 'DYNO' in environ:
-    ON_HEROKU = True
-    APP_NAME = str(getenv('APP_NAME'))
-else:
-    ON_HEROKU = False
+
 HAS_SSL = bool(getenv('HAS_SSL', True))
-if HAS_SSL:
-    URL = "https://{}/".format(FQDN)
+# URL is empty when no public hostname is available. Keep-alive will skip it.
+if FQDN:
+    URL = f"{'https' if HAS_SSL else 'http'}://{FQDN}/"
 else:
-    URL = "http://{}/".format(FQDN)
+    URL = ""
 
 # ============================
 # Reactions Configuration
