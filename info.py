@@ -45,7 +45,7 @@ FSUB_PICS = (environ.get('FSUB_PICS', 'https://files.catbox.moe/2wj4kz.jpg https
 # ============================
 ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '6570833761 5685076977 8680554561').split()] # Replace with the actual admin ID(s) to add
 CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1004447975687').split()]  # Channel id for auto indexing (make sure bot is admin)
-DAILY_DOWNLOAD_LIMIT = int(environ.get("DAILY_DOWNLOAD_LIMIT", "5")
+DAILY_DOWNLOAD_LIMIT = int(environ.get("DAILY_DOWNLOAD_LIMIT", "5"))
 
 LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1004460320031'))  # Log channel id (make sure bot is admin)
 BIN_CHANNEL = int(environ.get('BIN_CHANNEL', '-1004460320031'))  # Bin channel id (make sure bot is admin)
