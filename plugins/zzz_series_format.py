@@ -30,7 +30,7 @@ script.MOVIE_UPDATE_NOTIFY_TXT = """
 
 {episodes}
 
-<blockquote><b>⚡ Powered by - <a href=\"https://t.me/MovieHuntZone\">Movie Hunt Zone</a></b></blockquote>
+<blockquote><b>⚡ Powered by - <a href=\"https://t.me/publicvspvt\">Movie</a></b></blockquote>
 
 <b>🕒 {date}</b>
 """
