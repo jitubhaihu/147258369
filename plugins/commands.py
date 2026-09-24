@@ -121,8 +121,8 @@ async def start(client, message):
             buttons = [[
                        InlineKeyboardButton('✪ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ✪', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
                 ],[
-                    InlineKeyboardButton('✧ ɢʀᴏᴜᴘ ✧', url='https://t.me/+AOjcHxBEowBhYTRl'),
-                    InlineKeyboardButton('✧ ᴄʜᴀɴɴᴇɪ ✧', url='https://t.me/MovieHuntZone')
+                    InlineKeyboardButton('✧ ɢʀᴏᴜᴘ ✧', url='https://t.me/+sBD5THgT-LUxNGZl'),
+                    InlineKeyboardButton('✧ ᴄʜᴀɴɴᴇɪ ✧', url='https://t.me/publicvspvt')
                 ],[
                     InlineKeyboardButton('✧ ʜᴇʟᴘ ✧', callback_data='help'),
                   
@@ -157,8 +157,8 @@ async def start(client, message):
             buttons = [[
                         InlineKeyboardButton('✪ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ✪', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
                 ],[
-                    InlineKeyboardButton('✧ ɢʀᴏᴜᴘ ✧', url='https://t.me/+AOjcHxBEowBhYTRl'),
-                    InlineKeyboardButton('✧ ᴄʜᴀɴɴᴇɪ ✧', url='https://t.me/MovieHuntZone')
+                    InlineKeyboardButton('✧ ɢʀᴏᴜᴘ ✧', url='https://t.me/+sBD5THgT-LUxNGZl'),
+                    InlineKeyboardButton('✧ ᴄʜᴀɴɴᴇɪ ✧', url='https://t.me/publicvspvt')
                 ],[
                     InlineKeyboardButton('✧ ʜᴇʟᴘ ✧', callback_data='help'),
                    
@@ -319,7 +319,7 @@ async def start(client, message):
                     target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{user_id}_{verify_id}_{file_id}" if is_allfiles else f"https://telegram.me/{temp.U_NAME}?start=notcopy_{user_id}_{verify_id}_{file_id}"
                     gplink_url = await get_gplink(target_link)
                 except Exception as e:
-                    logger.error(f"Error building GPLink URL: {e}")
+                    logger.error(f"Error building VPLink URL: {e}")
 
                 buttons = [
                     [
@@ -331,7 +331,7 @@ async def start(client, message):
                         InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
                     ],
                     [
-                        InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                        InlineKeyboardButton("🌐 VPLink - Watch Ad & Get Premium", url=gplink_url)
                     ],
                     [
                         InlineKeyboardButton("⁉️ HOW TO VERIFY / TUTORIAL", url=TUTORIAL)
