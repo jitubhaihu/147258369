@@ -306,13 +306,13 @@ Nᴀᴍᴇ : {}
 
 Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
-    CAPTION = """  <a href="https://t.me/+AOjcHxBEowBhYTRl">
-<b>{file_name}</b></a
+    CAPTION = """ <a href="https://t.me/+lVuSGuIJT3E4NTY1">
+    <b>{file_name}</b></a>
 
-<b><blockquote>𝙿𝚘𝚠𝚎𝚛e𝚍 𝙱𝚢 ➥ <a href="https://t.me/MovieHuntZone">
-𝐔𝐏𝐃𝐀𝐓𝐄 CHANNEL
-</a></blockquote></b><b><blockquote>𝙿𝚘𝚠𝚎𝚛e𝚍 𝙱𝚢 ➥ <a href="https://t.me/+SzLcULYfU8s4OTM1">
-@𝐌𝐎𝐕𝐈𝐄 𝐑𝐄𝐐𝐔𝐄𝐒𝐓 𝐆𝐑𝐎𝐔𝐏</a></blockquote></b>"""
+    <b><blockquote>𝙿𝚘𝚠𝚎𝚛e𝚍 𝙱𝚢 ➥ <a href="https://t.me/+n8A12pYV6RwwNGU1">
+    𝐔𝐏𝐃𝐀𝐓𝐄 CHANNEL
+    </a></blockquote></b><b><blockquote>𝙿𝚘𝚠𝚎𝚛e𝚍 𝙱𝚢 ➥ <a href="https://t.me/+YikUIObYI_pmOWU1">
+    @𝐌𝐎𝐕𝐈𝐄 𝐑𝐄𝐐𝐔𝐄𝐒𝐓 𝐆𝐑𝐎𝐔𝐏</a></blockquote></b>"""
     
     MOVIE_UPDATE_NOTIFY_TXT = """
 <blockquote><b>📥 NEW FILE ADDED ✅</b></blockquote>
