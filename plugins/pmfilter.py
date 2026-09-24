@@ -1475,8 +1475,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "start":
         buttons = [[InlineKeyboardButton('✪ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ✪', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
                 ],[
-                    InlineKeyboardButton('✧ ɢʀᴏᴜᴘ ✧', url='https://t.me/+AOjcHxBEowBhYTRl'),
-                    InlineKeyboardButton('✧ ᴄʜᴀɴɴᴇɪ ✧', url='https://t.me/MovieHuntZone')
+                    InlineKeyboardButton('✧ ɢʀᴏᴜᴘ ✧', url='https://t.me/+sBD5THgT-LUxNGZl'),
+                    InlineKeyboardButton('✧ ᴄʜᴀɴɴᴇɪ ✧', url='https://t.me/publicvspvt')
                 ],[
                     InlineKeyboardButton('✧ ʜᴇʟᴘ ✧', callback_data='help'),
                     InlineKeyboardButton('✧ ᴀʙᴏᴜᴛ ✧', callback_data='about')
@@ -3590,8 +3590,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "start":
         buttons = [[InlineKeyboardButton('✪ ᴀᴅᴅ ᴍᴇ ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ ✪', url=f'http://t.me/{temp.U_NAME}?startgroup=true')
                 ],[
-                    InlineKeyboardButton('✧ ɢʀᴏᴜᴘ ✧', url='https://t.me/+AOjcHxBEowBhYTRl'),
-                    InlineKeyboardButton('✧ ᴄʜᴀɴɴᴇɪ ✧', url='https://t.me/MovieHuntZone')
+                    InlineKeyboardButton('✧ ɢʀᴏᴜᴘ ✧', url='https://t.me/+sBD5THgT-LUxNGZl'),
+                    InlineKeyboardButton('✧ ᴄʜᴀɴɴᴇɪ ✧', url='https://t.me/publicvspvt')
                 ],[
                     InlineKeyboardButton('✧ ʜᴇʟᴘ ✧', callback_data='help'),
                     InlineKeyboardButton('✧ ᴀʙᴏᴜᴛ ✧', callback_data='about')
