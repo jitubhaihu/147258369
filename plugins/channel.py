@@ -251,25 +251,72 @@ def extract_media_info(filename: str, caption: str):
 
 @Client.on_message(filters.chat(CHANNELS) & MEDIA_FILTER)
 async def media_handler(bot, message):
+    """Save database-channel media and reliably trigger movie updates."""
     media = next(
         (getattr(message, ft) for ft in ("document", "video", "audio")
          if getattr(message, ft, None)),
         None
     )
     if not media:
+        logger.warning("Database channel message %s has no supported media", message.id)
         return
 
-    media.file_type = next(ft for ft in ("document", "video", "audio") if hasattr(message, ft))
+    media.file_type = next(
+        (ft for ft in ("document", "video", "audio") if getattr(message, ft, None)),
+        None
+    )
     media.caption = message.caption or ""
-    success, info = await save_file(media)
+
+    # Keep normal indexing independent from update-channel failures.
+    try:
+        success, info = await save_file(media)
+    except Exception:
+        logger.exception("Failed to save media. message_id=%s", message.id)
+        return
+
     if not success:
+        logger.warning(
+            "File was not saved. message_id=%s filename=%s info=%s",
+            message.id, getattr(media, "file_name", "unknown"), info
+        )
+        return
+
+    filename = getattr(media, "file_name", None)
+    if not filename:
+        logger.warning("Saved media has no filename. message_id=%s", message.id)
         return
 
     try:
-        if await db.movie_update_status(bot.me.id):
-            await process_and_send_update(bot, media.file_name, media.caption)
+        # bot.id is available even when bot.me has not been populated yet.
+        bot_id = getattr(bot, "id", None)
+        if bot_id is None:
+            me = await bot.get_me()
+            bot_id = me.id
+
+        notification_enabled = await db.movie_update_status(bot_id)
+        logger.info(
+            "Movie update check: enabled=%s bot_id=%s update_channel=%s filename=%s",
+            notification_enabled, bot_id, MOVIE_UPDATE_CHANNEL, filename
+        )
+
+        if not notification_enabled:
+            logger.warning(
+                "Movie update notification is disabled. Run /movie_update on. filename=%s",
+                filename
+            )
+            return
+
+        await process_and_send_update(bot, filename, media.caption)
+        logger.info(
+            "Movie update processing completed: filename=%s update_channel=%s",
+            filename, MOVIE_UPDATE_CHANNEL
+        )
     except Exception:
-        logger.exception("Error processing media")
+        # Never break movie indexing if the notification channel fails.
+        logger.exception(
+            "Error processing movie update: filename=%s update_channel=%s",
+            filename, MOVIE_UPDATE_CHANNEL
+        )
 
 async def process_and_send_update(bot, filename, caption):
     try:
