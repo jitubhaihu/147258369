@@ -123,20 +123,20 @@ TUTORIAL_3 = environ.get("TUTORIAL_3", "https://t.me/howtoopenlinkbyvideo/5")   
 # Keep GPLINKS_API_KEY as a backwards-compatible alias because older code
 # imports this name from info.py.
 VPLINKS_API_KEY = (
-    environ.get("VPLINKS_API_KEY", "").strip()
-    or environ.get("VPLINK_API_KEY", "").strip()
-    or environ.get("SHORTENER_API", "").strip()
-    or environ.get("GPLINKS_API_KEY", "").strip()
+    environ.get("VPLINKS_API_KEY", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip()
+    or environ.get("VPLINK_API_KEY", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip()
+    or environ.get("SHORTENER_API", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip()
+    or environ.get("GPLINKS_API_KEY", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip()
 )
 GPLINKS_API_KEY = VPLINKS_API_KEY
 
-SHORTENER_API = environ.get("SHORTENER_API", VPLINKS_API_KEY).strip() or VPLINKS_API_KEY
+SHORTENER_API = environ.get("SHORTENER_API", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip() or VPLINKS_API_KEY
 SHORTENER_WEBSITE = environ.get("SHORTENER_WEBSITE", "vplink.in").strip() or "vplink.in"
 
-SHORTENER_API2 = environ.get("SHORTENER_API2", VPLINKS_API_KEY).strip() or VPLINKS_API_KEY
+SHORTENER_API2 = environ.get("SHORTENER_API2", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip() or VPLINKS_API_KEY
 SHORTENER_WEBSITE2 = environ.get("SHORTENER_WEBSITE2", "vplink.in").strip() or "vplink.in"
 
-SHORTENER_API3 = environ.get("SHORTENER_API3", VPLINKS_API_KEY).strip() or VPLINKS_API_KEY
+SHORTENER_API3 = environ.get("SHORTENER_API3", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip() or VPLINKS_API_KEY
 SHORTENER_WEBSITE3 = environ.get("SHORTENER_WEBSITE3", "vplink.in").strip() or "vplink.in"
 
 TWO_VERIFY_GAP = int(environ.get('TWO_VERIFY_GAP', "1200")) # Time gap for two-step verification in seconds (default: 20 minutes)
