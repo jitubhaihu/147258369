@@ -110,7 +110,7 @@ LANDSCAPE_POSTER = bool(environ.get('LANDSCAPE_POSTER', True)) # Shows landscape
 # ============================
 # Verification Settings
 # ============================
-IS_VERIFY = is_enabled('IS_VERIFY', False)  # Verification On (True) / Off (False)
+IS_VERIFY = is_enabled('IS_VERIFY', True)  # Verification On (True) / Off (False)
 LOG_VR_CHANNEL = int(environ.get('LOG_VR_CHANNEL', '-1004460320031')) #Verification Channel Id 
 LOG_API_CHANNEL = int(environ.get('LOG_API_CHANNEL', '-100')) #If Anyone Set Your Bot In Any Group And Set Shortner In That Group Then In This Channel The All Details Come
 VERIFY_IMG = environ.get("VERIFY_IMG", "https://telegra.ph/file/9ecc5d6e4df5b83424896.jpg")
@@ -120,18 +120,18 @@ TUTORIAL_2 = environ.get("TUTORIAL_2", "https://t.me/howtoopenlinkbyvideo/5")   
 TUTORIAL_3 = environ.get("TUTORIAL_3", "https://t.me/howtoopenlinkbyvideo/5")   # Third tutorial link for verification
 
 # GPLinks & Shortener Configuration
-GPLINKS_API_KEY = environ.get("GPLINKS_API_KEY", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip()
+VPLINKS_API_KEY = environ.get("GPLINKS_API_KEY", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip()
 if not GPLINKS_API_KEY:
-    GPLINKS_API_KEY = environ.get("SHORTENER_API", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip()
+    VPLINKS_API_KEY = environ.get("SHORTENER_API", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip()
 
-SHORTENER_API = GPLINKS_API_KEY
-SHORTENER_WEBSITE = "vplink.in/"
+SHORTENER_API = VPLINKS_API_KEY
+SHORTENER_WEBSITE = "vplink.in"
 
 SHORTENER_API2 = environ.get("SHORTENER_API2", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip() or GPLINKS_API_KEY
-SHORTENER_WEBSITE2 = "vplink.in/"
+SHORTENER_WEBSITE2 = "vplink.in"
 
 SHORTENER_API3 = environ.get("SHORTENER_API3", "cc32b72b56d7980dba4e49bf3ee466556955c0c6").strip() or GPLINKS_API_KEY
-SHORTENER_WEBSITE3 = "vplink.in/"
+SHORTENER_WEBSITE3 = "vplink.in"
 
 TWO_VERIFY_GAP = int(environ.get('TWO_VERIFY_GAP', "1200")) # Time gap for two-step verification in seconds (default: 20 minutes)
 THREE_VERIFY_GAP = int(environ.get('THREE_VERIFY_GAP', "54000"))    
