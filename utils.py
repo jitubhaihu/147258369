@@ -1187,32 +1187,55 @@ def get_paid_confirmation_content():
     return caption, InlineKeyboardMarkup(buttons)
 
 
-async def get_gplink(link):
-    api = environ.get("GPLINKS_API_KEY", "").strip() or GPLINKS_API_KEY or SHORTENER_API
-    site = "gplinks.com"
-    if not api:
-        logger.warning("GPLINKS_API_KEY is missing from environment. Using GPLinks API format fallback.")
-        return f"https://gplinks.com/api?api=YOUR_GPLINKS_API_KEY&url={quote_plus(link)}"
+async def get_Vplink(link):
+    """Create a VPLink short URL using the configured API key.
+
+    VPLink's domain/API settings are read from environment variables first,
+    then from info.py. Shortzy is used only for the API integration; if the
+    provider rejects the request, return the original URL rather than making
+    up a GPLinks URL that cannot verify the user.
+    """
+    api = (
+        environ.get("VPLINK_API_KEY", "").strip()
+        or environ.get("GPLINKS_API_KEY", "").strip()
+        or environ.get("SHORTENER_API", "").strip()
+        or GPLINKS_API_KEY
+        or SHORTENER_API
+    )
+    site = (
+        environ.get("VPLINK_DOMAIN", "").strip()
+        or environ.get("SHORTENER_WEBSITE", "").strip()
+        or SHORTENER_WEBSITE
+        or "vplink.in"
+    )
+    # Shortzy expects a host/domain, not a full URL or a trailing slash.
+    site = site.replace("https://", "").replace("http://", "").strip().strip("/")
+
+    if not api or not site:
+        logger.error("VPLink shortener is not configured; returning the original URL.")
+        return link
+
     try:
         shortzy = Shortzy(api, site)
         try:
             converted = await shortzy.convert(link)
-            if converted and (converted.startswith("http://") or converted.startswith("https://")):
+            if converted and converted.startswith(("http://", "https://")):
                 return converted
         except Exception as conv_err:
-            logger.warning(f"Shortzy convert failed ({conv_err}), attempting quick_link API format fallback...")
-        
+            logger.warning("VPLink convert failed: %s", conv_err)
+
         try:
             quick = await shortzy.get_quick_link(link)
-            if quick and (quick.startswith("http://") or quick.startswith("https://")):
+            if quick and quick.startswith(("http://", "https://")):
                 return quick
-        except Exception:
-            pass
+        except Exception as quick_err:
+            logger.warning("VPLink quick-link fallback failed: %s", quick_err)
 
-        return f"https://gplinks.com/api?api={api}&url={quote_plus(link)}"
+        logger.error("VPLink did not return a valid short URL; returning the original URL.")
+        return link
     except Exception as e:
-        logger.error(f"GPLink shortener error: {e}")
-        return f"https://gplinks.com/api?api={api}&url={quote_plus(link)}"
+        logger.error("VPLink shortener error: %s", e)
+        return link
 
 
 
