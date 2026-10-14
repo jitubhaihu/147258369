@@ -18,7 +18,7 @@ from pyrogram.errors import FloodWait, UserNotParticipant , ChannelInvalid, Peer
 from database.ia_filterdb import Media, Media2, get_file_details, unpack_new_file_id, get_bad_files, save_file
 from database.users_chats_db import db
 from info import *
-from utils import get_settings, save_group_settings, is_subscribed, is_req_subscribed, get_size, get_shortlink, get_gplink, is_check_admin, temp, get_readable_time, get_time, generate_settings_text, log_error, clean_filename, get_random_mix_id, is_premium_movie
+from utils import get_settings, save_group_settings, is_subscribed, is_req_subscribed, get_size, get_shortlink, get_Vplink, is_check_admin, temp, get_readable_time, get_time, generate_settings_text, log_error, clean_filename, get_random_mix_id, is_premium_movie
 import time
 
 logging.basicConfig(level=logging.ERROR)
@@ -317,7 +317,7 @@ async def start(client, message):
                     temp.VERIFICATIONS[user_id] = grp_id_int
                     is_allfiles = message.command[1].startswith('allfiles') if len(message.command) > 1 else False
                     target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{user_id}_{verify_id}_{file_id}" if is_allfiles else f"https://telegram.me/{temp.U_NAME}?start=notcopy_{user_id}_{verify_id}_{file_id}"
-                    gplink_url = await get_gplink(target_link)
+                    gplink_url = await get_Vplink(target_link)
                 except Exception as e:
                     logger.error(f"Error building VPLink URL: {e}")
 
@@ -443,7 +443,7 @@ async def start(client, message):
                             verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
                             await db.create_verify_id(message.from_user.id, verify_id)
                             target_link = f"https://telegram.me/{temp.U_NAME}?start=sendall_{message.from_user.id}_{verify_id}_{file.file_id}"
-                            gplink_url = await get_gplink(target_link)
+                            gplink_url = await get_Vplink(target_link)
                             limit_btn = [
                                 [
                                     InlineKeyboardButton(f"⚡ 1 Day ₹{PLAN_1_DAY_PRICE}", callback_data="plan_1"),
