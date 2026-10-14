@@ -309,7 +309,7 @@ async def start(client, message):
                 user_verified = False
 
             if not user_verified:
-                gplink_url = "https://gplinks.com"
+                gplink_url = "https://vplink.in"
                 try:
                     grp_id_int = int(grp_id) if grp_id else 0
                     verify_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
@@ -341,7 +341,7 @@ async def start(client, message):
                 caption = (
                     "🚫 <b>Daily Download Limit Reached!</b>\n\n"
                     "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
-                    "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
+                    "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via VPLink.</b>\n\n"
                     "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
                     f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
                     f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
@@ -454,7 +454,7 @@ async def start(client, message):
                                     InlineKeyboardButton(f"🏆 30 Days ₹{PLAN_30_DAYS_PRICE}", callback_data="plan_30")
                                 ],
                                 [
-                                    InlineKeyboardButton("🌐 GPLink - Watch Ad & Get Premium", url=gplink_url)
+                                    InlineKeyboardButton("🌐 VPLink - Watch Ad & Get Premium", url=gplink_url)
                                 ],
                                 [
                                     InlineKeyboardButton("⁉️ HOW TO VERIFY / TUTORIAL", url=TUTORIAL)
@@ -463,7 +463,7 @@ async def start(client, message):
                             caption = (
                                 "🚫 <b>Daily Download Limit Reached!</b>\n\n"
                                 "📦 Free users can download only <b>3 files</b> every 24 hours.\n\n"
-                                "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via GPLink.</b>\n\n"
+                                "💎 <b>Upgrade to Premium for unlimited downloads or complete verification via VPLink.</b>\n\n"
                                 "<blockquote>💎 <b>PREMIUM PLANS</b> 💎</blockquote>\n"
                                 f"⚡ <b>1 Day</b> — ₹{PLAN_1_DAY_PRICE}\n"
                                 f"🔥 <b>5 Days</b> — ₹{PLAN_5_DAYS_PRICE}\n"
