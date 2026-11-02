@@ -908,9 +908,15 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 script.ALRT_TXT.format(query.from_user.first_name),
                 show_alert=True
             )
-        await query.answer(
-            url=f"https://t.me/{temp.U_NAME}?start=file_{query.message.chat.id}_{file_id}"
-        )
+        # Telegram start payloads are limited to 64 characters. Store the full
+        # file_id server-side and send only a short token in the deep link.
+        token = get_random_mix_id() + get_random_mix_id()
+        temp.FILE_LINKS[token] = (query.message.chat.id, file_id)
+        # Keep this in-memory cache bounded for long-running bot processes.
+        if len(temp.FILE_LINKS) > 10000:
+            for old_token in list(temp.FILE_LINKS)[:2000]:
+                temp.FILE_LINKS.pop(old_token, None)
+        await query.answer(url=f"https://t.me/{temp.U_NAME}?start=fl_{token}")
 
     elif query.data.startswith("sendfiles"):
         clicked = query.from_user.id
