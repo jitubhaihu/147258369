@@ -53,6 +53,7 @@ class temp(object):
     B_LINK = None
     SETTINGS = {}
     GETALL = {}
+    FILE_LINKS = {}  # short Telegram deep-link tokens -> (group_id, file_id)
     SHORT = {}
     IMDB_CAP = {}
     VERIFICATIONS = {}
