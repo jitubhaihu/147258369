@@ -322,7 +322,7 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
 
 <b>🎞️ RATING : {rating}</b>
 <b>⏱️ DURATION : {runtime}</b>
-<blockquote><b>⚡ Powered by - <a href="@Ramhumaisach">Movie</a></b></blockquote>
+<blockquote><b>⚡ Powered by - <a href="https://t.me/Ramhumaisach">Movie</a></b></blockquote>
 
 <b>🕒 {date}</b>
 """
