@@ -306,13 +306,7 @@ Nᴀᴍᴇ : {}
 
 Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
-    CAPTION = """ <a href="https://t.me/+eIN0yl9EzvgwMmRl">
-    <b>{file_name}</b></a>
-
-    <b><blockquote>𝙿𝚘𝚠𝚎𝚛e𝚍 𝙱𝚢 ➥ <a href="https://t.me/+Wt5v2dHyIa8yODY1">
-    𝐔𝐏𝐃𝐀𝐓𝐄 CHANNEL
-    </a></blockquote></b><b><blockquote>𝙿𝚘𝚠𝚎𝚛e𝚍 𝙱𝚢 ➥ <a href="https://t.me/+Wt5v2dHyIa8yODY1">
-    @𝐌𝐎𝐕𝐈𝐄 𝐑𝐄𝐐𝐔𝐄𝐒𝐓 𝐆𝐑𝐎𝐔𝐏</a></blockquote></b>"""
+    CAPTION = """<a href="https://t.me/+eIN0yl9EzvgwMmRl"><b>{file_name}</b></a>"""
     
     MOVIE_UPDATE_NOTIFY_TXT = """
 <blockquote><b>📥 NEW FILE ADDED ✅</b></blockquote>
