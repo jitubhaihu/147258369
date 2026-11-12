@@ -1945,10 +1945,21 @@ async def auto_filter(client, msg, spoll=False):
             btn.append([InlineKeyboardButton(
                 text="↭ ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages")])
 
+        # Poster/metadata providers are optional: a TMDB/IMDb outage or an
+        # invalid API key must never prevent indexed file results from being sent.
+        imdb = None
         if settings.get('imdb'):
-            imdb = await get_posterx(search, file=(files[0]).file_name) if TMDB_POSTER else await get_poster(search, file=(files[0]).file_name)
-        else:
-            imdb = None
+            try:
+                if TMDB_POSTER:
+                    imdb = await get_posterx(search, file=files[0].file_name)
+                else:
+                    imdb = await get_poster(search, file=files[0].file_name)
+            except Exception as poster_error:
+                logger.warning(
+                    "Poster lookup failed for '%s'; sending file results without poster: %s",
+                    search, poster_error, exc_info=True
+                )
+                imdb = None
         cur_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
         time_difference = timedelta(hours=cur_time.hour, minutes=cur_time.minute, seconds=(cur_time.second+(cur_time.microsecond/1000000))) - \
             timedelta(hours=curr_time.hour, minutes=curr_time.minute,
