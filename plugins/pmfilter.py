@@ -4065,7 +4065,17 @@ async def auto_filter(client, msg, spoll=False):
                 text="↭ ɴᴏ ᴍᴏʀᴇ ᴘᴀɢᴇꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ↭", callback_data="pages")])
 
         if settings.get('imdb'):
-            imdb = await get_posterx(search, file=(files[0]).file_name) if TMDB_POSTER else await get_poster(search, file=(files[0]).file_name)
+            try:
+                if TMDB_POSTER:
+                    imdb = await get_posterx(search, file=files[0].file_name)
+                else:
+                    imdb = await get_poster(search, file=files[0].file_name)
+            except Exception as poster_error:
+                logger.warning(
+                    "Poster lookup failed for '%s'; continuing without poster: %s",
+                    search, poster_error, exc_info=True
+                )
+                imdb = None
         else:
             imdb = None
         cur_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
