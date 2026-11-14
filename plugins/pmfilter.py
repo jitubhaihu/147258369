@@ -7,6 +7,7 @@ import logging
 from database.ia_filterdb import Media, Media2, get_file_details, get_search_results, get_bad_files
 from database.config_db import mdb
 from pyrogram.errors import MessageIdInvalid, UserIsBlocked, MessageNotModified, PeerIdInvalid
+from pyrogram.errors.exceptions.bad_request_400 import MediaCaptionTooLong
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto, WebAppInfo
 from info import *
@@ -2239,16 +2240,63 @@ async def next_page(bot, query):
                 cap = await get_cap(settings, remaining_seconds, files, query, total, dreamx_title, offset)
                 if query.message.caption:
                     try:
-                        await query.message.edit_caption(caption=cap, reply_markup=InlineKeyboardMarkup(btn), parse_mode=enums.ParseMode.HTML)
+                        await query.message.edit_caption(
+                            caption=cap,
+                            reply_markup=InlineKeyboardMarkup(btn),
+                            parse_mode=enums.ParseMode.HTML
+                        )
+                    except MediaCaptionTooLong:
+                        # Telegram media captions are limited to 1024 characters.
+                        # Move the long paginated result list into a normal text message
+                        # (limit 4096) and keep the pagination keyboard there.
+                        import html
+                        plain_cap = html.unescape(re.sub(r"<[^>]+>", "", cap))
+                        if len(plain_cap) > 4000:
+                            plain_cap = plain_cap[:3997] + "..."
+                        await bot.send_message(
+                            chat_id=query.message.chat.id,
+                            text=plain_cap,
+                            reply_markup=InlineKeyboardMarkup(btn),
+                            disable_web_page_preview=True
+                        )
+                        try:
+                            await query.message.edit_reply_markup(reply_markup=None)
+                        except Exception:
+                            pass
                     except (MessageNotModified, MessageIdInvalid):
                         pass
                     except Exception as e:
-                        logger.exception(e)
+                        logger.exception("Failed to update paginated media caption: %s", e)
                 else:
                     try:
-                        await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), disable_web_page_preview=True, parse_mode=enums.ParseMode.HTML)
+                        await query.message.edit_text(
+                            text=cap,
+                            reply_markup=InlineKeyboardMarkup(btn),
+                            disable_web_page_preview=True,
+                            parse_mode=enums.ParseMode.HTML
+                        )
                     except (MessageNotModified, MessageIdInvalid):
                         pass
+                    except Exception as e:
+                        # Text messages allow 4096 characters; fall back to a
+                        # compact plain-text result if the generated HTML is longer.
+                        if "TOO_LONG" in str(e).upper():
+                            import html
+                            plain_cap = html.unescape(re.sub(r"<[^>]+>", "", cap))
+                            if len(plain_cap) > 4000:
+                                plain_cap = plain_cap[:3997] + "..."
+                            await bot.send_message(
+                                chat_id=query.message.chat.id,
+                                text=plain_cap,
+                                reply_markup=InlineKeyboardMarkup(btn),
+                                disable_web_page_preview=True
+                            )
+                            try:
+                                await query.message.edit_reply_markup(reply_markup=None)
+                            except Exception:
+                                pass
+                        else:
+                            logger.exception("Failed to update paginated text results: %s", e)
             else:
                 cap = await get_cap(settings, remaining_seconds, files, query, total, dreamx_title, offset+1)
                 await query.message.edit_text(text=cap, reply_markup=InlineKeyboardMarkup(btn), disable_web_page_preview=True, parse_mode=enums.ParseMode.HTML)
