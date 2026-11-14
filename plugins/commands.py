@@ -352,6 +352,9 @@ async def start(client, message):
                     ],
                     [
                         InlineKeyboardButton("⁉️ HOW TO VERIFY / TUTORIAL", url=TUTORIAL)
+                    ],
+                    [
+                        InlineKeyboardButton("📲 CONTACT ADMIN / OWNER", url=OWNER_LNK)
                     ]
                 ]
                 reply_markup = InlineKeyboardMarkup(buttons)
@@ -475,6 +478,9 @@ async def start(client, message):
                                 ],
                                 [
                                     InlineKeyboardButton("⁉️ HOW TO VERIFY / TUTORIAL", url=TUTORIAL)
+                                ],
+                                [
+                                    InlineKeyboardButton("📲 CONTACT ADMIN / OWNER", url=OWNER_LNK)
                                 ]
                             ]
                             caption = (
