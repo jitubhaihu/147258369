@@ -1033,7 +1033,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                             f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n"
                             f"⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n"
                             f"📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {query.from_user.mention}\n"
-                            f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ :⚡ {query.message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
+                            f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ :⚡ {temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
                         )
                     else:
                         cap = (
@@ -1041,7 +1041,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                             f"🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n"
                             f"⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n"
                             f"📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {query.from_user.mention}\n"
-                            f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ :⚡ {query.message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
+                            f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ :⚡ {temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
                         )
                     cap += "\n\n<u>Your Requested Files Are Here</u> \n\n</b>"
                     for idx, file in enumerate(files, start=offset + 1):
@@ -1059,7 +1059,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                 cap = (
                     f"<b>🏷 ᴛɪᴛʟᴇ : <code>{search}</code>\n"
                     f"⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n"
-                    f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {query.message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
+                    f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
                 )
             else:
                 cap = (
@@ -1067,7 +1067,7 @@ async def get_cap(settings, remaining_seconds, files, query, total_results, sear
                     f"🧱 ᴛᴏᴛᴀʟ ꜰɪʟᴇꜱ : <code>{total_results}</code>\n"
                     f"⏰ ʀᴇsᴜʟᴛ ɪɴ : <code>{remaining_seconds} Sᴇᴄᴏɴᴅs</code>\n\n"
                     f"📝 ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ : {query.from_user.mention}\n"
-                    f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {query.message.chat.title or temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
+                    f"⚜️ ᴘᴏᴡᴇʀᴇᴅ ʙʏ : ⚡ {temp.B_LINK or 'ᴅʀᴇᴀᴍxʙᴏᴛᴢ'}\n</b>"
                 )
 
             cap += "\n\n<u>Your Requested Files Are Here</u>\n\n</b>"

@@ -146,6 +146,8 @@ async def save_file(media):
     return True, 1
 
 async def get_search_results(chat_id, query, file_type=None, max_results=None, offset=0, filter=False):
+    """Return one globally paginated result set across all configured databases."""
+    offset = max(0, int(offset or 0))
     if chat_id is not None:
         settings = await get_settings(int(chat_id))
         if max_results is None:
@@ -153,80 +155,64 @@ async def get_search_results(chat_id, query, file_type=None, max_results=None, o
                 max_results = 10 if settings.get("max_btn") else int(MAX_B_TN)
             except KeyError:
                 await save_group_settings(int(chat_id), "max_btn", True)
-                settings = await get_settings(int(chat_id))
-                max_results = 10 if settings.get("max_btn") else int(MAX_B_TN)
+                max_results = 10
+    if max_results is None:
+        max_results = 10
+    max_results = max(1, int(max_results))
 
-    # This is the new "middle-ground" regex logic for speed and flexibility
     if isinstance(query, list):
-        # This part handles season searches etc., where you need to match any of the full phrases.
         raw_pattern = '|'.join(re.escape(q.strip()) for q in query if q.strip())
         regex_list = [re.compile(raw_pattern, re.IGNORECASE)] if raw_pattern else []
-        
+        if not regex_list:
+            return [], None, 0
         if USE_CAPTION_FILTER:
             filter_mongo = {"$or": ([{"file_name": r} for r in regex_list] + [{"caption": r} for r in regex_list])}
         else:
             filter_mongo = {"$or": [{"file_name": r} for r in regex_list]}
     else:
-        query = query.strip()
+        query = (query or "").strip()
         if not query:
             return [], None, 0
-
-        # Multi-word: use lazy-regex join to match flexible separators (fast & robust)
-        if ' ' in query:
-            words = [re.escape(w) for w in query.split() if w.strip()]
-            if words:
-                raw_pattern = r'.*?'.join(words)
-            else:
-                raw_pattern = r'.'
-            try:
-                regex = re.compile(raw_pattern, flags=re.IGNORECASE)
-            except re.error:
-                return [], None, 0
-
-            if USE_CAPTION_FILTER:
-                filter_mongo = {"$or": [{"file_name": regex}, {"caption": regex}]}
-            else:
-                filter_mongo = {"file_name": regex}
+        words = [re.escape(w) for w in query.split() if w.strip()]
+        raw_pattern = r'.*?'.join(words) if len(words) > 1 else re.escape(query)
+        try:
+            regex = re.compile(raw_pattern, flags=re.IGNORECASE)
+        except re.error:
+            return [], None, 0
+        if USE_CAPTION_FILTER:
+            filter_mongo = {"$or": [{"file_name": regex}, {"caption": regex}]}
         else:
-            # SINGLE-WORD PATH: keep regex, but make it lazy and word-bound for speed.
-            raw_pattern = re.escape(query)
-            try:
-                regex = re.compile(raw_pattern, flags=re.IGNORECASE)
-            except re.error:
-                return [], None, 0
-
-            if USE_CAPTION_FILTER:
-                filter_mongo = {"$or": [{"file_name": regex}, {"caption": regex}]}
-            else:
-                filter_mongo = {"file_name": regex}
+            filter_mongo = {"file_name": regex}
 
     if file_type:
         filter_mongo["file_type"] = file_type
-    
-    # The rest of the function remains the same, using parallel queries.
-    count_tasks = [Media.count_documents(filter_mongo)]
-    find_tasks = [Media.find(filter_mongo).sort("$natural", -1).skip(offset).limit(max_results).to_list(length=max_results)]
 
+    collections = [Media]
     if MULTIPLE_DB:
-        count_tasks.append(Media2.count_documents(filter_mongo))
-        find_tasks.append(Media2.find(filter_mongo).sort("$natural", -1).skip(offset).limit(max_results).to_list(length=max_results))
-    
+        collections.append(Media2)
+
+    # Fetch enough from each collection, then apply offset once to the combined
+    # result set. Applying skip(offset) independently to each DB breaks pages.
+    fetch_limit = offset + max_results
+    count_tasks = [collection.count_documents(filter_mongo) for collection in collections]
+    find_tasks = [
+        collection.find(filter_mongo).sort("$natural", -1).limit(fetch_limit).to_list(length=fetch_limit)
+        for collection in collections
+    ]
     count_results, find_results = await asyncio.gather(
         asyncio.gather(*count_tasks),
         asyncio.gather(*find_tasks)
     )
-    
+
     total_results = sum(count_results)
-    files = find_results[0]
-    if MULTIPLE_DB and len(find_results) > 1:
-        files.extend(find_results[1])
-    
-    files = files[:max_results]
-    
+    combined = []
+    for result_set in find_results:
+        combined.extend(result_set)
+    files = combined[offset:offset + max_results]
+
     next_offset = offset + len(files)
     if next_offset >= total_results:
         next_offset = ""
-
     return files, next_offset, total_results
 
 async def get_bad_files(query, file_type=None):
