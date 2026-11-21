@@ -45,7 +45,8 @@ FSUB_PICS = (environ.get('FSUB_PICS', 'https://files.catbox.moe/2wj4kz.jpg https
 # ============================
 ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '9190590092 8415645585 5685076977').split()] # Replace with the actual admin ID(s) to add
 CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1003942813716').split()]  # Channel id for auto indexing (make sure bot is admin)
-DAILY_DOWNLOAD_LIMIT = int(environ.get("DAILY_DOWNLOAD_LIMIT", "5"))
+# FREE MODE: no daily download cap
+DAILY_DOWNLOAD_LIMIT = 1000000000
 
 LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1004459537446'))  # Log channel id (make sure bot is admin)
 BIN_CHANNEL = int(environ.get('BIN_CHANNEL', '-1004459537446'))  # Bin channel id (make sure bot is admin)
@@ -160,11 +161,7 @@ PREMIUM_USER = [int(user) if id_pattern.search(user) else user for user in envir
 # Premium Movies Configuration
 # ============================
 # Add movie/series names here that require Premium subscription
-PREMIUM_MOVIES = [
-    "100",
-    "100",
-    
-]
+PREMIUM_MOVIES = []  # FREE MODE: every indexed movie/series is available to all users
 
 
 # ============================
@@ -196,7 +193,7 @@ PM_SEARCH = bool(environ.get('PM_SEARCH', True))  # PM Search On (True) / Off (F
 EMOJI_MODE = bool(environ.get('EMOJI_MODE', True))  # Emoji status On (True) / Off (False)
 BUTTON_MODE = is_enabled((environ.get('BUTTON_MODE', "False")), False) # pm & Group button or link mode (True) / Off (False)
 STREAM_MODE = bool(environ.get('STREAM_MODE', False)) # Set Stream mode True or False
-PREMIUM_STREAM_MODE = bool(environ.get('PREMIUM_STREAM_MODE', False)) # Set Stream mode True or False only for premium users
+PREMIUM_STREAM_MODE = False  # FREE MODE: streaming is not restricted to premium users
 MAINTENANCE = is_enabled(environ.get('MAINTENANCE', "False"), False)
 
 
